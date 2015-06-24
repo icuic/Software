@@ -1,0 +1,609 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+G:\MyDesign\Project_design\SmartMailBox\Software\SmartBox\Project\SmartBox.uvproj
+Project File Date:  06/15/2015
+
+<h2>Output:</h2>
+compiling NRF522.c...
+..\User\BSP\NRF522.c(33): warning:  #223-D: function "InitNRF522Pin" declared implicitly
+..\User\BSP\NRF522.c:       InitNRF522Pin();
+..\User\BSP\NRF522.c:       ^
+..\User\BSP\NRF522.c(37): error:  #159: declaration is incompatible with previous "InitNRF522Pin" (declared at line 33)
+..\User\BSP\NRF522.c:   void InitNRF522Pin(void)
+..\User\BSP\NRF522.c:        ^
+..\User\BSP\NRF522.c(64): warning:  #177-D: variable "i" was declared but never referenced
+..\User\BSP\NRF522.c:     unsigned char i, ucAddr ;
+..\User\BSP\NRF522.c:                   ^
+..\User\BSP\NRF522.c: ..\User\BSP\NRF522.c: 2 warnings, 1 error
+..\User\BSP\NRF522.c - 1 Error(s), 2 Warning(s).
+compiling NRF522.c...
+..\User\BSP\NRF522.c(65): warning:  #177-D: variable "i" was declared but never referenced
+..\User\BSP\NRF522.c:     unsigned char i, ucAddr ;
+..\User\BSP\NRF522.c:                   ^
+..\User\BSP\NRF522.c: ..\User\BSP\NRF522.c: 1 warning, 0 errors
+..\User\BSP\NRF522.c - 0 Error(s), 1 Warning(s).
+compiling NRF522.c...
+..\User\BSP\NRF522.c - 0 Error(s), 0 Warning(s).
+compiling NRF522.c...
+..\User\BSP\NRF522.c - 0 Error(s), 0 Warning(s).
+compiling main.c...
+..\User\APP\main.c(162): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+..\User\APP\main.c - 0 Error(s), 2 Warning(s).
+compiling main.c...
+..\User\APP\main.c(162): error:  #167: argument of type "const u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf((const u8 *)tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 1 error
+..\User\APP\main.c - 1 Error(s), 1 Warning(s).
+compiling main.c...
+..\User\APP\main.c(162): error:  #167: argument of type "const u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf((u8 const*)tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 1 error
+..\User\APP\main.c - 1 Error(s), 1 Warning(s).
+compiling main.c...
+..\User\APP\main.c(162): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+..\User\APP\main.c - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling bsp.c...
+..\User\BSP\bsp.c(148): warning:  #223-D: function "InitNRF522Func" declared implicitly
+..\User\BSP\bsp.c:       InitNRF522Func();
+..\User\BSP\bsp.c:       ^
+..\User\BSP\bsp.c: ..\User\BSP\bsp.c: 1 warning, 0 errors
+compiling BspTime2.c...
+compiling BspUsart1.c...
+compiling key.c...
+linking...
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol Des_Decrypt (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol Des_Encrypt (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol KK (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol des_on (referred from nrf522.o).
+.\Out\SmartBox.axf: Not enough information to produce a FEEDBACK file.
+.\Out\SmartBox.axf: Not enough information to list image symbols.
+.\Out\SmartBox.axf: Not enough information to list the image map.
+.\Out\SmartBox.axf: Finished: 3 information, 0 warning and 4 error messages.
+Target not created
+Build target 'Target 1'
+compiling bsp.c...
+compiling BspUsart1.c...
+compiling NRF522.c...
+compiling main.c...
+..\User\APP\main.c(162): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol Des_Decrypt (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol Des_Encrypt (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol KK (referred from nrf522.o).
+.\Out\SmartBox.axf: Error: L6218E: Undefined symbol des_on (referred from nrf522.o).
+.\Out\SmartBox.axf: Not enough information to produce a FEEDBACK file.
+.\Out\SmartBox.axf: Not enough information to list image symbols.
+.\Out\SmartBox.axf: Not enough information to list the image map.
+.\Out\SmartBox.axf: Finished: 3 information, 0 warning and 4 error messages.
+Target not created
+compiling NRF522.c...
+..\User\BSP\NRF522.c(439): warning:  #223-D: function "Des_Decrypt" declared implicitly
+..\User\BSP\NRF522.c:       Des_Decrypt((char *)Buf    ,KK,(char *)Buf    )       ;
+..\User\BSP\NRF522.c:       ^
+..\User\BSP\NRF522.c(490): warning:  #223-D: function "Des_Encrypt" declared implicitly
+..\User\BSP\NRF522.c:       Des_Encrypt((char *)RF_Buffer    ,KK,
+..\User\BSP\NRF522.c:       ^
+..\User\BSP\NRF522.c: ..\User\BSP\NRF522.c: 2 warnings, 0 errors
+..\User\BSP\NRF522.c - 0 Error(s), 2 Warning(s).
+compiling NRF522.c...
+..\User\BSP\NRF522.c - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling bsp.c...
+compiling BspUsart1.c...
+compiling main.c...
+..\User\APP\main.c(162): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=7076 RO-data=456 RW-data=28 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling system_stm32f10x.c...
+compiling misc.c...
+compiling stm32f10x_exti.c...
+compiling stm32f10x_flash.c...
+compiling stm32f10x_gpio.c...
+compiling stm32f10x_rcc.c...
+compiling stm32f10x_tim.c...
+compiling stm32f10x_usart.c...
+compiling stm32f10x_spi.c...
+compiling bsp.c...
+compiling BspTime2.c...
+compiling BspTime3.c...
+compiling BspUsart1.c...
+compiling InOutControl.c...
+..\User\BSP\InOutControl.c(84): warning:  #177-D: variable "i" was declared but never referenced
+..\User\BSP\InOutControl.c:       u32 i;
+..\User\BSP\InOutControl.c:           ^
+..\User\BSP\InOutControl.c: ..\User\BSP\InOutControl.c: 1 warning, 0 errors
+compiling Lcd12864.c...
+compiling key.c...
+compiling NRF522.c...
+compiling main.c...
+..\User\APP\main.c(162): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=7076 RO-data=456 RW-data=28 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 3 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.222V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(163): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=7096 RO-data=456 RW-data=28 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 2 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling system_stm32f10x.c...
+compiling misc.c...
+compiling stm32f10x_exti.c...
+compiling stm32f10x_flash.c...
+compiling stm32f10x_gpio.c...
+compiling stm32f10x_rcc.c...
+compiling stm32f10x_tim.c...
+compiling stm32f10x_usart.c...
+compiling stm32f10x_spi.c...
+compiling bsp.c...
+compiling BspTime2.c...
+compiling BspTime3.c...
+compiling BspUsart1.c...
+compiling InOutControl.c...
+..\User\BSP\InOutControl.c(84): warning:  #177-D: variable "i" was declared but never referenced
+..\User\BSP\InOutControl.c:       u32 i;
+..\User\BSP\InOutControl.c:           ^
+..\User\BSP\InOutControl.c: ..\User\BSP\InOutControl.c: 1 warning, 0 errors
+compiling Lcd12864.c...
+compiling key.c...
+compiling NRF522.c...
+compiling main.c...
+..\User\APP\main.c(163): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=7096 RO-data=456 RW-data=28 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 3 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.222V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 0
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(163): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(111): warning:  #177-D: variable "lockStat" was declared but never referenced
+..\User\APP\main.c:       u8 lockStat = 0,tmps[20];
+..\User\APP\main.c:          ^
+..\User\APP\main.c: ..\User\APP\main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=7096 RO-data=456 RW-data=28 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 2 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c(195): error:  #65: expected a ";"
+..\User\APP\main.c:                       }
+..\User\APP\main.c:                       ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 1 error
+Target not created
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7316 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 1 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7320 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 1 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7320 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 1 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7320 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 1 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'Target 1'
+compiling main.c...
+..\User\APP\main.c(170): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+..\User\APP\main.c:                   sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
+..\User\APP\main.c:                           ^
+..\User\APP\main.c: ..\User\APP\main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7320 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+Program Size: Code=7320 RO-data=456 RW-data=36 ZI-data=4116  
+FromELF: creating hex file...
+".\Out\SmartBox.axf" - 0 Error(s), 0 Warning(s).
+Load "G:\\MyDesign\\Project_design\\SmartMailBox\\Software\\SmartBox\\Project\\Out\\SmartBox.AXF" 
+
+JLink info:
+-----------
+DLL: V4.11i, compiled Jan 28 2010 19:55:25
+Firmware: J-Link ARM V8 compiled Nov 25 2013 19:20:08
+Hardware: V8.00
+S/N : 20100214 
+Feature(s) : RDI,FlashDL,FlashBP,JFlash,GDBFull 
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+
+Target info:
+------------
+Device: STM32F100C8
+VTarget = 3.235V
+State of Pins: 
+TCK: 0, TDI: 0, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 2048
+Watchpoints:          4
+JTAG speed: 2000 kHz
+---
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: TPIU fitted.
+* JLink Info:   FPUnit: 6 code (BP) slots and 2 literal slots
+Erase Done.
+Programming Done.
+Verify OK.

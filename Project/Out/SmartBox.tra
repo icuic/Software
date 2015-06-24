@@ -1,0 +1,38 @@
+*** Creating Trace Output File '.\Out\SmartBox.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\out\system_stm32f10x.o"'
+### List of Objects: adding '".\out\startup_stm32f10x_md.o"'
+### List of Objects: adding '".\out\misc.o"'
+### List of Objects: adding '".\out\stm32f10x_exti.o"'
+### List of Objects: adding '".\out\stm32f10x_flash.o"'
+### List of Objects: adding '".\out\stm32f10x_gpio.o"'
+### List of Objects: adding '".\out\stm32f10x_rcc.o"'
+### List of Objects: adding '".\out\stm32f10x_tim.o"'
+### List of Objects: adding '".\out\stm32f10x_usart.o"'
+### List of Objects: adding '".\out\stm32f10x_spi.o"'
+### List of Objects: adding '".\out\bsp.o"'
+### List of Objects: adding '".\out\bsptime2.o"'
+### List of Objects: adding '".\out\bsptime3.o"'
+### List of Objects: adding '".\out\bspusart1.o"'
+### List of Objects: adding '".\out\inoutcontrol.o"'
+### List of Objects: adding '".\out\lcd12864.o"'
+### List of Objects: adding '".\out\key.o"'
+### List of Objects: adding '".\out\nrf522.o"'
+### List of Objects: adding '".\out\main.o"'
+### ADS-LD Command completed:
+--cpu Cortex-M3 ".\out\system_stm32f10x.o" ".\out\startup_stm32f10x_md.o" ".\out\misc.o" ".\out\stm32f10x_exti.o" ".\out\stm32f10x_flash.o" ".\out\stm32f10x_gpio.o" ".\out\stm32f10x_rcc.o" ".\out\stm32f10x_tim.o" ".\out\stm32f10x_usart.o" ".\out\stm32f10x_spi.o" ".\out\bsp.o" ".\out\bsptime2.o" ".\out\bsptime3.o" ".\out\bspusart1.o" ".\out\inoutcontrol.o" ".\out\lcd12864.o" ".\out\key.o" ".\out\nrf522.o" ".\out\main.o" --library_type=microlib --feedback ".\Out\SmartBox.fed" 
+--strict --scatter ".\Out\SmartBox.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\Obj\SmartBox.map" -o ".\Out\SmartBox.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\Out\SmartBox.axf'
+### ADS-LD Command File: '.\Out\SmartBox.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\Out\SmartBox.lnp', Handle=0x000002EC
+### Writing '.lnp' file
+### ADS-LD Command file '.\Out\SmartBox.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

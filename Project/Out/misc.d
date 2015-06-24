@@ -1,0 +1,17 @@
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
+.\Out\misc.o: ..\Libraries\CMSIS\Device\ST\STM32F10x\Include\stm32f10x.h
+.\Out\misc.o: ..\Libraries\CMSIS\Include\core_cm3.h
+.\Out\misc.o: d:\Keil\ARM\RV31\INC\stdint.h
+.\Out\misc.o: ..\Libraries\CMSIS\Include\core_cmInstr.h
+.\Out\misc.o: ..\Libraries\CMSIS\Include\core_cmFunc.h
+.\Out\misc.o: ..\Libraries\CMSIS\Device\ST\STM32F10x\Include\system_stm32f10x.h
+.\Out\misc.o: ..\User\BSP\stm32f10x_conf.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h
+.\Out\misc.o: ..\Libraries\CMSIS\Device\ST\STM32F10x\Include\stm32f10x.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
+.\Out\misc.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
