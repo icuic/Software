@@ -18,6 +18,14 @@ u8 DockCard[2][4] =
         {0xD5,0x38,0x08,0xC0}
 };
 
+/*typedef struct
+{
+    eUIStatus windowIndex;              //当前窗口状态索引
+    void (*menu_draw)(void);            // 界面显示
+    void (*menu_enter)(void);           // 进入界面处理
+    void (*menu_action)(uint8_t triggeredKey);  // 界面对应按键操作
+        
+}UIStruct;*/
 
 
 void DisplayKey(u8 keyvalue)
@@ -44,10 +52,10 @@ void DisplayKey(u8 keyvalue)
             j++;
         }
 
-		for(;j<10;j++)
-		{
-			LcdWdata(' ');
-		}
+    for(;j<10;j++)
+    {
+      LcdWdata(' ');
+    }
     }
 }
 
@@ -80,7 +88,7 @@ int main(void)
         if(IS_TIMEOUT_1MS(Keyscan,20))
         {
             DisplayKey(scankey());
-			IS_TIMEOUT_1MS(Keyscan,0);
+            IS_TIMEOUT_1MS(Keyscan,0);
         }
 
         //scan card
@@ -150,10 +158,10 @@ int main(void)
             if(IS_TIMEOUT_1MS(LockPlus,50))
             {
                 OpenLock(0x0000);
-				lockStat = 0;
+        lockStat = 0;
             }
 
-			
+      
         }
         
     }
