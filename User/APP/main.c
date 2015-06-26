@@ -3,6 +3,8 @@
 
 #include "bsp.h"
 #include <stdio.h>
+#include "menu.h"
+
 
 unsigned char UID[5],Temp[4]                                       ;
 unsigned char RF_Buffer[18]                                        ;
@@ -18,15 +20,8 @@ u8 DockCard[2][4] =
         {0xD5,0x38,0x08,0xC0}
 };
 
-/*typedef struct
-{
-    eUIStatus windowIndex;              //当前窗口状态索引
-    void (*menu_draw)(void);            // 界面显示
-    void (*menu_enter)(void);           // 进入界面处理
-    void (*menu_action)(uint8_t triggeredKey);  // 界面对应按键操作
-        
-}UIStruct;*/
 
+extern eUIIndex currentMenu;
 
 void DisplayKey(u8 keyvalue)
 {
@@ -87,16 +82,20 @@ int main(void)
         //scaned key
         if(IS_TIMEOUT_1MS(Keyscan,20))
         {
-            DisplayKey(scankey());
+            //DisplayKey(scankey());
+            menu_handle(scankey());
             IS_TIMEOUT_1MS(Keyscan,0);
         }
+        
+        sprintf(tmps,"%d",(u8)currentMenu);
+        DisplayStr(tmps,0,7);
 
         //scan card
         if(PcdRequest(0x52,Temp)==MI_OK)
         {
             if(Temp[0]==0x04&&Temp[1]==0x00) 
             {
-                DisplayStr("MFOne-S50",1,0);
+                //DisplayStr("MFOne-S50",1,0);
             }
             else if(Temp[0]==0x02&&Temp[1]==0x00)
             {
@@ -121,10 +120,10 @@ int main(void)
             
             if(PcdAnticoll(UID)==MI_OK)
             { 
-                DisplayStr("Card Id is:",2,0);
+                //DisplayStr("Card Id is:",2,0);
                 sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
                 tmps[8] = 0;
-                DisplayStr(tmps,3,0);
+                //DisplayStr(tmps,3,0);
                 for(i=0;i<2;i++)
                 {
                     for(j=0;j<4;j++)
@@ -147,6 +146,7 @@ int main(void)
                         }
                         lockStat = 1;
                         IS_TIMEOUT_1MS(LockPlus,0);
+                        currentMenu = E_UI_OPEN_SUCCESS;
                     }
                 }
                 

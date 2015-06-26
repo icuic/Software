@@ -5,5 +5,6 @@
 void DisplayInit(void);
 void SetCursor(unsigned char x,unsigned char y);
 void LcdWdata(unsigned char WData);
+void LcdWcom(unsigned char WCom);
 
 #endif
