@@ -126,6 +126,9 @@ void BspInit(void)
     NVIC_Configuration();	
     GPIO_Configuration();	
 
+
+    bsp_InitTimer(); 
+
     BspTim2Init();
 #if 0    
     BspTim3Init();

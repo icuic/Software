@@ -1,3 +1,7 @@
+#ifndef _menu_h_
+#define _menu_h_
+
+
 typedef enum
 {
     E_UI_WELCOME = 0,
@@ -19,3 +23,5 @@ typedef struct
 
 void menu_handle(uint8_t key);
 
+
+#endif

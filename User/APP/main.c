@@ -14,11 +14,7 @@ char          MBRX[30]                                             ;
 char          MBKeyTP[30]                                          ;
 char          Event   ;               
     
-u8 DockCard[2][4] = 
-    {
-        {0x75,0x98,0x8a,0x52},
-        {0xD5,0x38,0x08,0xC0}
-};
+
 
 
 extern eUIIndex currentMenu;
@@ -49,7 +45,7 @@ void DisplayKey(u8 keyvalue)
 
     for(;j<10;j++)
     {
-      LcdWdata(' ');
+      //LcdWdata(' ');
     }
     }
 }
@@ -73,23 +69,29 @@ void DisplayStr(u8 *str,u8 x,u8 y)
 *******************************************************************************/
 int main(void)
 {
-    u8 lockStat = 0,tmps[20],i,j;
+    //u8 lockStat = 0,tmps[20],i,j;
+    extern u8 lockStat;
+    u8 tmps[20];
     
     BspInit();
 
     while (1)
     {
         //scaned key
+        menu_handle(scankey());
+        
+        #if 0
         if(IS_TIMEOUT_1MS(Keyscan,20))
         {
-            //DisplayKey(scankey());
+            DisplayKey(scankey());
             menu_handle(scankey());
             IS_TIMEOUT_1MS(Keyscan,0);
         }
+        #endif
         
-        sprintf(tmps,"%d",(u8)currentMenu);
-        DisplayStr(tmps,0,7);
 
+
+#if 0
         //scan card
         if(PcdRequest(0x52,Temp)==MI_OK)
         {
@@ -152,13 +154,13 @@ int main(void)
                 
             }
         }
-
+#endif
         if(lockStat== 1)
         {
             if(IS_TIMEOUT_1MS(LockPlus,50))
             {
                 OpenLock(0x0000);
-        lockStat = 0;
+                lockStat = 0;
             }
 
       
