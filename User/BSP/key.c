@@ -3,19 +3,27 @@
 
 /*********用户一般不可以改动************************/
 
-#define NTime		58	//键盘去抖动的时间值	
-#define MaxRate		3528	//连续按键的按下前时间为600ms
-#define MinRate		588	//连续按下的速率
+#define NTime       58  //键盘去抖动的时间值    
+#define MaxRate     3528    //连续按键的按下前时间为600ms
+#define MinRate     588 //连续按下的速率
 
 
-#define KEYVAL1	    0x10
-#define KEYVAL2	    0x20
-#define KEYVAL3	    0x30
+#define KEYVAL1     0x10
+#define KEYVAL2     0x20
+#define KEYVAL3     0x30
 
+#define KEY_NONE    0xff
+#define KeyValidTime    1   /* 有效按键必须持续5*10ms */
+
+uint8_t KeyCode;          /* 存放检测到的按键值 */
+static uint8_t ucDetectTime = 0;      /* 计时到同一按键按下的时间 */
+static bool  KeyPressFlag = FALSE;
+static uint8_t ucKeyCodeTemp= KEY_NONE;           /* 上一次检测时，读取到的键值 */
 
 
 const KeyValueTable MyKey[17] = 
 {
+#if 0
     {0xf0,{"1/A"}},
     {0xf4,{"5/E"}},
     {0xf2,{"9/I"}},
@@ -33,16 +41,36 @@ const KeyValueTable MyKey[17] =
     {0xcf,{"#/L"}},
     {0x8f,{"OK"}},
     {0xff,{"No key"}},
+#endif
+
+    {0xf0,{"1"}, '1', 'A'},
+    {0xf4,{"5"}, '5', 'E'},
+    {0xf2,{"9"}, '9', 'I'},
+    {0xf6,{"Switch"}, 0, 0},
+    {0xf8,{"2"}, '2', 'B'},
+    {0xfc,{"6"}, '6', 'F'},
+    {0xfa,{"0"}, '0', 'J'},
+    {0xfe,{"Password"}, 0, 0},
+    {0x6f,{"3"}, '3', 'C'},
+    {0x2f,{"7"}, '7', 'G'},
+    {0x4f,{"*/K"}, '*', 'K'},
+    {0x0f,{"Esc"}, 0, 0},
+    {0xef,{"4"}, '4', 'D'},
+    {0xaf,{"8"}, '8', 'H'},
+    {0xcf,{"#/L"}, '#', 'L'},
+    {0x8f,{"OK"}, 0, 0},
+    {0xff,{"No key"}, 0, 0},
+
 } ;
 
 
-volatile  u8 KeyValue=0xff;	 //设置没有按键按下
+volatile  u8 KeyValue=0xff;  //设置没有按键按下
 volatile  u8 KeyValueOld=0xff;
 volatile  u8 CurrentKeyValue = 0xff;
 u8 state=0;
-u16	keycnt=0;
-u8	task=0;
-u8   KeyEsc=0;		//按键释放标志
+u16 keycnt=0;
+u8  task=0;
+u8   KeyEsc=0;      //按键释放标志
 
 
 volatile u8     PressPressFlag=0;
@@ -84,7 +112,7 @@ void InitSPIcommon(void)
      SPI_Init(SPI2,&SPI_InitStructure);
      SPI_Cmd(SPI2, ENABLE);
 }
-
+uint8_t key_detect(void);
 void InitKey(void)
 {
     //
@@ -101,7 +129,8 @@ void InitKey(void)
 
     InitSPIcommon();
     //register process function
-    //BspTim3SetIRQCallBack(key);
+    
+    //BspTim3SetIRQCallBack(key_detect);
 }
 
 /*******************************************按键扫描程序*********************************/
@@ -134,51 +163,110 @@ u8 scankey(void)  //只处理一个键按下情况
 
     GPIO_SetBits(GPIOA,GPIO_Pin_12);
 
-	return keyvalue;
+    return keyvalue;
     
 }
 
 #if 0
 void key(void)
 {
-	if(!PressPressFlag && !ReleasePressFlag)
+    if(!PressPressFlag && !ReleasePressFlag)
     {
-		scankey();   //扫描键盘
-		if(0==keycnt&&!KeyEsc)
+        scankey();   //扫描键盘
+        if(0==keycnt&&!KeyEsc)
         {  //第一次扫描键盘
-			KeyValueOld=KeyValue;
-	   	}
-	   	if(KeyValueOld==KeyValue&&0xff!=KeyValueOld)
+            KeyValueOld=KeyValue;
+        }
+        if(KeyValueOld==KeyValue&&0xff!=KeyValueOld)
         {  //有键按下
-			if(!KeyEsc)
+            if(!KeyEsc)
             {
-				keycnt++;
-				switch(task)
+                keycnt++;
+                switch(task)
                 {
-				case 0:         //去抖阶段
-					if(keycnt==NTime)
+                case 0:         //去抖阶段
+                    if(keycnt==NTime)
                     {   //年龄等于下限N
-					
-						keycnt=0;
-						PressPressFlag=1;   //置位标志位，通知主程序有按键按下
-						CurrentKeyValue = KeyValue;
-						KeyEsc=1; //等待按键的释放
-				    }
-					break;
-		    	default:
-					break;
-				}
-			}
-			
-		}
-		else 
+                    
+                        keycnt=0;
+                        PressPressFlag=1;   //置位标志位，通知主程序有按键按下
+                        CurrentKeyValue = KeyValue;
+                        KeyEsc=1; //等待按键的释放
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            
+        }
+        else 
         {
-			keycnt=0;
-			KeyEsc=0;
-			task = 0;
-		}
-	}
+            keycnt=0;
+            KeyEsc=0;
+            task = 0;
+        }
+    }
 }
 #endif
+
+
+static void ClearKeyFlag(void)
+{
+    ucKeyCodeTemp = KEY_NONE;
+    KeyPressFlag = FALSE;
+    ucDetectTime = 0;    
+}
+
+extern u8 flagSPI2;
+
+uint8_t key_detect(void)
+{
+    static uint8_t lastKey = KEY_NONE;
+    uint8_t ucKey;  
+    
+    ucKey = scankey();             //读取I/O口的按键值
+    
+    if (ucKey !=  KEY_NONE)           //有按键按下
+    {
+      if (KeyPressFlag == FALSE)    //判断是否是第一次按键按下
+      {
+        KeyPressFlag = TRUE;      //按键按下标志位置位
+        ucKeyCodeTemp = ucKey;    //更新上一次检测到的按键值
+        ucDetectTime = 0;         //按键按下时间计数清零
+      }
+      else
+      {
+        if (ucKeyCodeTemp == ucKey)   //当前按下的按键和上一次按下的是同一按键
+        {
+          if (ucDetectTime < 200)
+            ucDetectTime ++;
+        }
+        else     //本次按下的按键和上次不是同一个按键
+        {
+          ucKeyCodeTemp = ucKey;    
+          ucDetectTime = 0;
+        }
+      } 
+    }
+    else   //没有按键按下，或短按释放
+    {
+        if (KeyPressFlag == TRUE)   
+        {
+            if (ucDetectTime >= KeyValidTime)
+            {
+                KeyCode = ucKeyCodeTemp;
+                ClearKeyFlag();   //这句不能删
+                return KeyCode;
+            }
+            ClearKeyFlag();
+        }
+
+        lastKey = KEY_NONE;
+    }
+
+    KeyCode = KEY_NONE;
+    return KeyCode;
+}
 
 /*******************************************按键扫描程序完毕*********************************/

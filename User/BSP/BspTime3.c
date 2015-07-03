@@ -1,8 +1,8 @@
 #include "stm32f10x.h"
 #include "BspTime3.h"
 
-#define IRQHANDLENUM    2
-static void (*IRQHandler[IRQHANDLENUM])(void) = {NULL,NULL};
+#define IRQHANDLENUM    1
+static void (*IRQHandler[IRQHANDLENUM])(void) = {NULL};
 
 /*******************************************************************************
 * Function Name :void BspTim3Init(void)
@@ -16,7 +16,7 @@ void BspTim3Init(void)
 {
     NVIC_InitTypeDef NvicInitdef;
     TIM_TimeBaseInitTypeDef timbase;	
-    u16 cnt = 10 * 170 * 24;     //170us 触发
+    u16 cnt = 1000;     //170us 触发
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);	
 
@@ -24,11 +24,11 @@ void BspTim3Init(void)
     timbase.TIM_CounterMode = TIM_CounterMode_Up;
     timbase.TIM_ClockDivision = TIM_CKD_DIV1;
     timbase.TIM_Period = cnt - 1;
-    timbase.TIM_Prescaler = 0; 	        // 1分频
+    timbase.TIM_Prescaler = 2400 - 1; 	        // 1分频
     TIM_TimeBaseInit(TIM3, &timbase);
 
     NvicInitdef.NVIC_IRQChannel = TIM3_IRQn;
-    NvicInitdef.NVIC_IRQChannelPreemptionPriority = 6;
+    NvicInitdef.NVIC_IRQChannelPreemptionPriority = 9;
     NvicInitdef.NVIC_IRQChannelSubPriority = 0;
     NvicInitdef.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NvicInitdef);
@@ -113,6 +113,8 @@ void BspTim3SetIRQCallBack(void *fun)
 * Other         :
 * Date          :2013.01.27
 *******************************************************************************/
+extern volatile uint8_t aaa;
+
 void TIM3_IRQHandler(void)
 {
     u8 i;
@@ -121,12 +123,17 @@ void TIM3_IRQHandler(void)
     {
         TIM_ClearITPendingBit( TIM3, TIM_IT_Update);
 
+#if 1
         for(i=0;i<IRQHANDLENUM;i++)
         {
             if (IRQHandler[i] != NULL)
-                (*IRQHandler[i])();			//中断函数
+                (*IRQHandler[i])();
         }
+#endif    
     }
+
+        //aaa++;
+        //aaa %= 255;
 }
 
 

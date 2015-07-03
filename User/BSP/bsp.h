@@ -9,6 +9,7 @@
 #include "Lcd12864.h"
 #include "key.h"
 #include "NRF522.h"
+#include "rtc.h"
 
 #ifndef NULL
 #define NULL        ((void *)0)

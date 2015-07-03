@@ -76,6 +76,7 @@ void BspTim2Close(void)
 * Other         :
 * Date          :2013.01.27
 *******************************************************************************/
+extern uint8_t key_detect(void);
 void TIM2_IRQHandler(void)
 {
     u16 i = 0;
@@ -83,11 +84,14 @@ void TIM2_IRQHandler(void)
     if( SET == TIM_GetITStatus(TIM2,TIM_IT_Update) )
     {
         TIM_ClearITPendingBit( TIM2, TIM_IT_Update);
-
+#if 1
         for (i = 0; i < (u16)eTimMax; i++)
         {
             g_Tim2Array[i]++;
         }
+#endif
+
+        //key_detect();
     }
 }
 

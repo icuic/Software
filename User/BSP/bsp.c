@@ -131,7 +131,7 @@ void BspInit(void)
 
     BspTim2Init();
 #if 0    
-    BspTim3Init();
+    BspTim3Init(); 
     BspUsart1Init();
     LedInit();
     HT1632C_Init();
@@ -149,5 +149,9 @@ void BspInit(void)
     InitKey();
 
     InitNRF522Func();
+
+    rtcInit();
+
+    //BspTim3Open();
 }
 

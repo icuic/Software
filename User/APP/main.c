@@ -14,18 +14,23 @@ char          MBRX[30]                                             ;
 char          MBKeyTP[30]                                          ;
 char          Event   ;               
     
-
+volatile uint8_t aaa = 0;
 
 
 extern eUIIndex currentMenu;
 
-void DisplayKey(u8 keyvalue)
+void DisplayKey(u8 keyvalue, u8 x, u8 y)
 {
+
+
     u8 i = 0 ,j = 0;
 
-    SetCursor(0,0);
+    if(keyvalue == 0xFF)
+        return;
+    
+    SetCursor(x,y);
 
-    SetCursor(0,0);
+    SetCursor(x,y);
     for(i = 0;i<17;i++)
     {
         if(MyKey[i].KeyValueRead == keyvalue)
@@ -78,18 +83,24 @@ int main(void)
     while (1)
     {
         //scaned key
-        menu_handle(scankey());
+        //menu_handle(KeyCode);
+        //DisplayKey(KeyCode);
+
+        //sprintf(tmps,"%d",aaa);
+        //DisplayStr(tmps,2,0);
+
         
-        #if 0
+        #if 1
         if(IS_TIMEOUT_1MS(Keyscan,20))
         {
-            DisplayKey(scankey());
-            menu_handle(scankey());
+            KeyCode = scankey();
+            //DisplayKey(bbb);
+            menu_handle(KeyCode);
             IS_TIMEOUT_1MS(Keyscan,0);
         }
         #endif
         
-
+        
 
 #if 0
         //scan card

@@ -6,9 +6,13 @@ typedef struct __KEYVALUETABLE
 {
     u8 KeyValueRead;
     u8 KeyString[10];
+    u8 NumASCII;
+    u8 CharASCII;
 }KeyValueTable;
 
 extern const KeyValueTable MyKey[];
+extern uint8_t KeyCode;
+
 
 void InitSPIcommon(void);
 void InitKey(void);
