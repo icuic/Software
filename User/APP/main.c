@@ -4,6 +4,8 @@
 #include "bsp.h"
 #include <stdio.h>
 #include "menu.h"
+#include "roomInfoManage.h"
+
 
 
 unsigned char UID[5],Temp[4]                                       ;
@@ -15,6 +17,8 @@ char          MBKeyTP[30]                                          ;
 char          Event   ;               
     
 volatile uint8_t aaa = 0;
+
+
 
 
 extern eUIIndex currentMenu;
@@ -76,9 +80,16 @@ int main(void)
 {
     //u8 lockStat = 0,tmps[20],i,j;
     extern u8 lockStat;
-    u8 tmps[20];
+    u8 tmps[20] = {"609"};
+    stRoomInfo dataRead;
     
     BspInit();
+
+    
+    initVirtAddVarTab();
+    recoverRoomInfoFromEEPROM();
+    recoverAdminCardIDFromEEPROM();
+
 
     while (1)
     {

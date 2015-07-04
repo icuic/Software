@@ -4,7 +4,8 @@
 #include "bsp.h"
 #include "bsp_timer.h"
 #include <stdio.h>
-
+#include "roomInfoManage.h"
+//#include "string.h"
 
 extern void DisplayStr(u8 *str,u8 x,u8 y);
 
@@ -30,9 +31,40 @@ void draw_room_invalid(void);
 void enter_room_invalid(uint8_t key);
 void action_room_invalid(uint8_t key);
 
+
 void draw_room_pw_error(void);
 void enter_room_pw_error(uint8_t key);
 void action_room_pw_error(uint8_t key);
+
+
+void draw_set_admin_card(void);
+void enter_set_admin_card(uint8_t key);
+void action_set_admin_card(uint8_t key);
+
+
+void draw_admin(void);
+void enter_admin(uint8_t key);
+void action_admin(uint8_t key);
+
+
+void draw_user_setting(void);
+void enter_user_setting(uint8_t key);
+void action_user_setting(uint8_t key);
+
+
+void draw_admin_setting(void);
+void enter_admin_setting(uint8_t key);
+void action_admin_setting(uint8_t key);
+
+
+void draw_system_setting(void);
+void enter_system_setting(uint8_t key);
+void action_system_setting(uint8_t key);
+
+
+void draw_box_setting(void);
+void enter_box_setting(uint8_t key);
+void action_box_setting(uint8_t key);
 
 
 
@@ -84,7 +116,55 @@ UIStruct menuTab[E_UI_MAX] =
     draw_room_pw_error,
     enter_room_pw_error,
     action_room_pw_error,
-    }
+    }, 
+
+    {
+    E_UI_SET_ADMIN_CARD,
+    E_UI_WELCOME,
+    draw_set_admin_card,
+    enter_set_admin_card,
+    action_set_admin_card,
+    },
+
+    {
+    E_UI_ADMIN,
+    E_UI_WELCOME,
+    draw_admin,
+    enter_admin,
+    action_admin,
+    },
+    
+    {
+    E_UI_USER_SETTING,
+    E_UI_ADMIN,
+    draw_user_setting,
+    enter_user_setting,
+    action_user_setting,
+    },
+    
+    {
+    E_UI_ADMIN_SETTING,
+    E_UI_ADMIN,
+    draw_admin_setting,
+    enter_admin_setting,
+    action_admin_setting,
+    },
+
+    {
+    E_UI_SYSTEM_SETTING,
+    E_UI_ADMIN,
+    draw_system_setting,
+    enter_system_setting,
+    action_system_setting,
+    },
+
+    {
+    E_UI_BOX_SETTING,
+    E_UI_ADMIN,
+    draw_box_setting,
+    enter_box_setting,
+    action_box_setting,
+    },
 };
 
 volatile eUIIndex currentMenu = E_UI_WELCOME;
@@ -98,6 +178,8 @@ u8 DockCard[2][4] =
         {0x75,0x98,0x8a,0x52},
         {0xD5,0x38,0x08,0xC0}
 };
+
+
 
 static uint8_t lenRoomNum = 0;           // length of room number
 static uint8_t roomNum[6];      // Room number
@@ -114,9 +196,9 @@ void timeout()
     menuTab[currentMenu].menu_enter(0);
 }
 
-void scanCard(void)
+void scanCard(unsigned char* UID)
 {
-    unsigned char UID[5],Temp[4];
+    unsigned char Temp[4];
     u8 i,j;
 
     //scan card
@@ -225,7 +307,7 @@ void draw_welcome(void)
     //LcdWdata(' ');
     //LcdWdata(0xC7);
     //LcdWdata(0xEB);
-    //DisplayDataTime(RTC_GetCounter());
+    DisplayDataTime(RTC_GetCounter());
 }
 
 void enter_welcome(uint8_t key)
@@ -235,10 +317,19 @@ void enter_welcome(uint8_t key)
 
 void action_welcome(uint8_t key)
 {
+    uint8_t UID[5];
+
     draw_welcome();
 
     // scan card
-    scanCard();
+    scanCard(UID);
+
+    // admin
+    if (!memcmp(adminCardID, UID, 4))
+    {
+        currentMenu = E_UI_ADMIN;
+        enter_admin(key);
+    }
 
     if(key != 0xff)
     {
@@ -354,8 +445,15 @@ void action_room_number(uint8_t key)
     if (key == 0x8F)
     {
         translateKey(roomNum, lenRoomNum);
-    
-        if (strcmp(roomNum, "606", lenRoomNum) == 0)
+
+        if (strcmp(roomNum, "888", lenRoomNum) == 0)
+        {
+            currentMenu = E_UI_SET_ADMIN_CARD;
+
+            LcdWcom(0x01);
+            enter_set_admin_card(key);
+        }
+        else if (strcmp(roomNum, "606", lenRoomNum) == 0)
         {
             currentMenu = E_UI_USER_PASSWORD;
 
@@ -482,6 +580,239 @@ void action_room_pw_error(uint8_t key)
 {
     draw_room_pw_error();
 }
+
+
+void draw_set_admin_card(void)
+{
+    uint8_t tmps[6];
+
+    DisplayStr("请刷管理员卡", 1, 1);
+    
+    sprintf(tmps,"%02X%02X%02X%02X",adminCardID[0],adminCardID[1],adminCardID[2],adminCardID[3]);
+    DisplayStr(tmps,3,0);
+
+}
+
+void enter_set_admin_card(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    bsp_StartTimer(1, 5000, timeout);
+}
+
+void action_set_admin_card(uint8_t key)
+{    
+    uint8_t UID[5];
+    memset(UID, 0xFF, 5);
+
+    draw_set_admin_card();
+
+    // scan card
+    scanCard(UID);
+
+    if (memcmp(UID, "\xFF\xFF\xFF\xFF\xFF", 5))
+    {
+        // update RAM
+        memcpy(adminCardID, UID, 4);
+        // update EEPROM
+        writeAdminCardIDToEEPROM(UID);
+    }
+}
+
+
+void draw_admin(void)
+{
+    DisplayStr("设置", 0, 3);
+    DisplayStr("1 用户", 1, 0);
+    DisplayStr("2 管理", 1, 4);
+    DisplayStr("3 系统", 2, 0);
+    DisplayStr("4 箱门", 2, 4);    
+    DisplayStr("0 退出", 3, 0);
+}
+
+void enter_admin(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    bsp_StartTimer(1, 10000, timeout);
+}
+
+void action_admin(uint8_t key)
+{    
+    uint8_t tmp = key; 
+    
+    draw_admin();
+
+    translateKey(&tmp, 1);
+
+
+    switch(tmp)
+    {
+        case '1':
+            currentMenu = E_UI_USER_SETTING;
+            enter_user_setting(key);
+            break;
+
+        case '2':
+            currentMenu = E_UI_ADMIN_SETTING;
+            enter_admin_setting(key);
+            break;
+
+        case '3':
+            currentMenu = E_UI_SYSTEM_SETTING;
+            enter_system_setting(key);
+            break;
+
+        case '4':
+            currentMenu = E_UI_BOX_SETTING;
+            enter_box_setting(key);
+            break;
+
+        case '0':
+            currentMenu = E_UI_WELCOME;
+            enter_welcome(key);
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void draw_user_setting(void)
+{
+    DisplayStr("用户设置", 0, 2);
+    DisplayStr("1 箱密", 1, 0);
+    DisplayStr("2 房号", 1, 4);
+    DisplayStr("3 授卡", 2, 0);
+    DisplayStr("4 退卡", 2, 4);    
+    DisplayStr("5 退出", 3, 0);
+}
+
+void enter_user_setting(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    bsp_StartTimer(1, 10000, timeout);
+}
+
+void action_user_setting(uint8_t key)
+{    
+    draw_user_setting();
+
+    switch(key)
+    {
+        case 1:
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void draw_admin_setting(void)
+{
+    DisplayStr("管理设置", 0, 2);
+    DisplayStr("1 密码", 1, 0);
+    DisplayStr("2 时钟", 1, 4);
+    DisplayStr("3 锁定", 2, 0);
+    DisplayStr("4 查询", 2, 4);    
+    DisplayStr("5 字母", 3, 0);
+    DisplayStr("0 退出", 3, 4);
+}
+
+void enter_admin_setting(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    bsp_StartTimer(1, 10000, timeout);
+}
+
+void action_admin_setting(uint8_t key)
+{    
+    draw_admin_setting();
+
+    switch(key)
+    {
+        case 1:
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void draw_system_setting(void)
+{
+    DisplayStr("系统设置", 0, 2);
+    DisplayStr("1 期限", 1, 0);
+    DisplayStr("2 时段", 1, 4);
+    DisplayStr("3 方式", 2, 0);
+    DisplayStr("4 权限", 2, 4);    
+    DisplayStr("5 箱数", 3, 0);
+    DisplayStr("0 退出", 3, 4);
+}
+
+void enter_system_setting(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    bsp_StartTimer(1, 10000, timeout);
+}
+
+void action_system_setting(uint8_t key)
+{    
+    draw_system_setting();
+
+    switch(key)
+    {
+        case 1:
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void draw_box_setting(void)
+{
+    DisplayStr("开箱设置", 0, 2);
+    DisplayStr("1 单开", 1, 0);
+    DisplayStr("2 全开", 1, 4);
+    DisplayStr("3 单清", 2, 0);
+    DisplayStr("4 全清", 2, 4);    
+    DisplayStr("5 语音", 3, 0);
+    DisplayStr("0 退出", 3, 4);
+}
+
+void enter_box_setting(uint8_t key)
+{
+    LcdWcom(0x01);
+
+    draw_box_setting();
+
+    bsp_StartTimer(1, 10000, timeout);
+
+    
+}
+
+void action_box_setting(uint8_t key)
+{    
+    
+
+    switch(key)
+    {
+        case 1:
+            break;
+
+        default:
+            break;
+    }
+}
+
 
 
 void menu_handle(uint8_t key)

@@ -11,6 +11,14 @@ typedef enum
     E_UI_OPEN_SUCCESS,
     E_UI_ROOM_INVALID,
     E_UI_ROOM_PW_ERROR, // password error
+
+    E_UI_SET_ADMIN_CARD,
+    E_UI_ADMIN,
+
+    E_UI_USER_SETTING,
+    E_UI_ADMIN_SETTING,
+    E_UI_SYSTEM_SETTING,
+    E_UI_BOX_SETTING,      // ¿ªÏäÑ¡Ôñ
     E_UI_MAX
 }eUIIndex;
 

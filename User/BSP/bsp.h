@@ -10,6 +10,7 @@
 #include "key.h"
 #include "NRF522.h"
 #include "rtc.h"
+#include "eeprom.h"
 
 #ifndef NULL
 #define NULL        ((void *)0)
