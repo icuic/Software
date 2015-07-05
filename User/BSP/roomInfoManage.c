@@ -26,6 +26,7 @@ uint16_t getVirtAdd(eRoomInfoType type, uint8_t index, uint8_t cardIndex)
 
         case E_ROOM_INFO_CARD_ID:
             return index * sizeof(stRoomInfo) / 2 + M_ROOM_NUM_MAX_LENGTH * sizeof(uint8_t) / 2 + \
+                    + M_ROOM_PASSWORD_MAX_LENGTH * sizeof(uint8_t) / 2 + \
                     cardIndex * M_CARD_ID_MAX_LENGTH * sizeof(uint8_t) / 2;
         default:
             return 0xFFFF;

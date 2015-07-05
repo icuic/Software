@@ -11,6 +11,7 @@
 #include "NRF522.h"
 #include "rtc.h"
 #include "eeprom.h"
+#include "beep.h"
 
 #ifndef NULL
 #define NULL        ((void *)0)

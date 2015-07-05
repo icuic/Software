@@ -32,9 +32,8 @@ typedef struct
 #pragma pack()
 
 extern uint8_t adminCardID[M_CARD_ID_MAX_LENGTH];
+extern stRoomInfo roomInfo[M_MAX_BOX];
 
-
-uint8_t SetRoomNum(uint8_t* number);
 void readRoomInfoFromEEP(stRoomInfo *roomData,  uint8_t index);
 void recoverRoomInfoFromEEPROM(void);
 
@@ -43,5 +42,8 @@ void recoverAdminCardIDFromEEPROM(void);
 
 void initVirtAddVarTab(void);
 
+uint8_t SetRoomNum(uint8_t* number);
+uint8_t SetRoomPassword(uint8_t index, uint8_t* data);
+uint8_t SetRoomCardID(uint8_t index, uint8_t* data);
 
 #endif

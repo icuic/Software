@@ -78,10 +78,8 @@ void DisplayStr(u8 *str,u8 x,u8 y)
 *******************************************************************************/
 int main(void)
 {
-    //u8 lockStat = 0,tmps[20],i,j;
     extern u8 lockStat;
-    u8 tmps[20] = {"609"};
-    stRoomInfo dataRead;
+
     
     BspInit();
 

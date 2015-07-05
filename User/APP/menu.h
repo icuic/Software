@@ -19,6 +19,13 @@ typedef enum
     E_UI_ADMIN_SETTING,
     E_UI_SYSTEM_SETTING,
     E_UI_BOX_SETTING,      // 开箱选择
+
+    E_UI_USER_SETTING_BOX_PW,   // 设置箱门密码
+
+    E_UI_USER_SETTING_BOX_PW_SUCCESS,
+    E_UI_USER_SETTING_BOX_PW_FAILED,
+
+    E_UI_USER_SETTING_CARD_AUTH,    // 授卡
     E_UI_MAX
 }eUIIndex;
 

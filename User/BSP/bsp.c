@@ -152,6 +152,8 @@ void BspInit(void)
 
     rtcInit();
 
+    BeepInit();
+
     //BspTim3Open();
 
     /* Unlock the Flash Program Erase controller */
