@@ -42,8 +42,11 @@ void recoverAdminCardIDFromEEPROM(void);
 
 void initVirtAddVarTab(void);
 
-uint8_t SetRoomNum(uint8_t* number);
+uint8_t SetRoomNum(uint8_t index, uint8_t* number);
 uint8_t SetRoomPassword(uint8_t index, uint8_t* data);
 uint8_t SetRoomCardID(uint8_t index, uint8_t* data);
+
+uint8_t matchRoomNum(uint8_t *num, uint8_t len);
+
 
 #endif

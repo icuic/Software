@@ -1,6 +1,6 @@
 #ifndef _menu_h_
 #define _menu_h_
-
+#include "stm32f10x.h"
 
 typedef enum
 {
@@ -26,6 +26,11 @@ typedef enum
     E_UI_USER_SETTING_BOX_PW_FAILED,
 
     E_UI_USER_SETTING_CARD_AUTH,    // 授卡
+
+    E_UI_USER_SETTING_BOX_NUM,      // 设置房间号与锁的对应关系
+
+    E_UI_CARD_INVALID,              //  无效卡
+
     E_UI_MAX
 }eUIIndex;
 
@@ -33,6 +38,7 @@ typedef struct
 {
     eUIIndex number;
     eUIIndex parent;
+    uint32_t timeout;
     void (*menu_draw)(void);
     void (*menu_enter)(uint8_t triggerdKey);
     void (*menu_action)(uint8_t triggeredKey);

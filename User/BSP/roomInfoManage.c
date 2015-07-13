@@ -102,27 +102,19 @@ uint8_t writeFragToEEP(eRoomInfoType type, uint8_t index, uint8_t cardIndex, uin
 }
 
 // number: pointer to the array stored the ASCII of room number
-uint8_t SetRoomNum(uint8_t* number)
+uint8_t SetRoomNum(uint8_t index, uint8_t* number)
 {
-    uint8_t i = 0;
-#if 0
-    for(i = 0; i < M_MAX_BOX; i++)
+    if (index < M_MAX_BOX)
     {
-        if( !memcpy(roomInfo[i].number, "\xFF\xFF\xFF\xFF\xFF\xFF", M_ROOM_NUM_MAX_LENGTH) )
-        break;
-    }
-#endif
-//    if (i < M_MAX_BOX)
-//    {
         // update RAM
-        memcpy(roomInfo[i].number, number, M_ROOM_NUM_MAX_LENGTH);
+        memcpy(roomInfo[index].number, number, M_ROOM_NUM_MAX_LENGTH);
         // update EEPROM
-        writeFragToEEP(E_ROOM_INFO_NUMBER, i, 0, roomInfo[i].number);
-//    }
-//    else
-//    {
+        writeFragToEEP(E_ROOM_INFO_NUMBER, index, 0, roomInfo[index].number);
+    }
+    else
+    {
         // to do
-//    }
+    }
 
     return 0;
 }
@@ -195,4 +187,20 @@ void initVirtAddVarTab(void)
     {
         VirtAddVarTab[j + i] = j + i;
     }
+}
+
+uint8_t matchRoomNum(uint8_t *num, uint8_t len)
+{
+    uint8_t i = 0;
+
+    for(i = 0; i < M_MAX_BOX; i++)
+    {
+        if ((memcmp(roomInfo[i].number, num, len) == 0) &&
+             roomInfo[i].number[len] == '\0')
+        {
+            break;
+        }
+    }
+
+    return i;
 }

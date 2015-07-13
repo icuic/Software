@@ -183,3 +183,8 @@ void SetCursor(unsigned char x,unsigned char y)
     LcdWcom(i);
 }
 
+void ClearDisplay(void)
+{
+    LcdWcom(0x01);
+}
+

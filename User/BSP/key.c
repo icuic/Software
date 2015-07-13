@@ -21,6 +21,8 @@ static bool  KeyPressFlag = FALSE;
 static uint8_t ucKeyCodeTemp= KEY_NONE;           /* 上一次检测时，读取到的键值 */
 
 
+
+
 const KeyValueTable MyKey[17] = 
 {
 #if 0
@@ -58,7 +60,7 @@ const KeyValueTable MyKey[17] =
     {0xef,{"4"}, '4', 'D'},
     {0xaf,{"8"}, '8', 'H'},
     {0xcf,{"#/L"}, '#', 'L'},
-    {0x8f,{"OK"}, 0, 0},
+    {0x8f,{"OK"}, '!', 0},
     {0xff,{"No key"}, 0, 0},
 
 } ;
