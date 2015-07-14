@@ -204,3 +204,16 @@ uint8_t matchRoomNum(uint8_t *num, uint8_t len)
 
     return i;
 }
+
+bool matchRoomPassword(uint8_t index, uint8_t *pw, uint8_t lenPW)
+{
+    if ((memcmp(roomInfo[index].password, pw, lenPW) == 0) &&
+         roomInfo[index].password[lenPW] == '\0')
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+

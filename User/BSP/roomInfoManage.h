@@ -47,6 +47,7 @@ uint8_t SetRoomPassword(uint8_t index, uint8_t* data);
 uint8_t SetRoomCardID(uint8_t index, uint8_t* data);
 
 uint8_t matchRoomNum(uint8_t *num, uint8_t len);
+bool matchRoomPassword(uint8_t index, uint8_t *pw, uint8_t lenPW);
 
 
 #endif
