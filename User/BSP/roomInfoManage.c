@@ -131,10 +131,60 @@ uint8_t SetRoomPassword(uint8_t index, uint8_t* data)
 
 uint8_t SetRoomCardID(uint8_t index, uint8_t* data)
 {
-    // update RAM
-    memcpy(roomInfo[index].cardID[0], data, M_CARD_ID_MAX_LENGTH);
-    // update EEPROM
-    writeFragToEEP(E_ROOM_INFO_CARD_ID, index, 0, roomInfo[index].cardID[0]);
+    uint8_t i = 0, j = 0, len = 0;
+
+    while( *(data + len) != 0xFF)
+    {
+        len ++;
+    }
+
+    /* if existed */
+    for (i = 0; i < M_ROOM_MAX_USER; i++)
+    {
+        if (memcmp(roomInfo[index].cardID[i], data, len) == 0)
+        {
+            return ;
+        }
+    }
+
+
+    /* if there is empty space to stored */
+    for (i = 0; i < M_ROOM_MAX_USER; i++)
+    {
+        for (j = 0; j < M_CARD_ID_MAX_LENGTH; j++)
+        {
+            if (roomInfo[index].cardID[i][j] != 0)
+                break;;
+        }
+
+        if (j == M_CARD_ID_MAX_LENGTH)
+            break;
+    }
+
+
+    if (i < M_ROOM_MAX_USER)    /* Store to RAM and EEPROM */
+    {
+        // update RAM
+        memcpy(roomInfo[index].cardID[i], data, M_CARD_ID_MAX_LENGTH);
+        // update EEPROM
+        writeFragToEEP(E_ROOM_INFO_CARD_ID, index, i, roomInfo[index].cardID[i]);
+    }
+    else                        /* FIFO */
+    {
+        for (j = 0; j < M_ROOM_MAX_USER - 1; j++)
+        {
+            // update RAM
+            memcpy(roomInfo[index].cardID[j], roomInfo[index].cardID[j+1], M_CARD_ID_MAX_LENGTH);
+            // update EEPROM
+            writeFragToEEP(E_ROOM_INFO_CARD_ID, index, j, roomInfo[index].cardID[j]);
+        }
+
+        // update RAM
+        memcpy(roomInfo[index].cardID[M_ROOM_MAX_USER], data, M_CARD_ID_MAX_LENGTH);
+        // update EEPROM
+        writeFragToEEP(E_ROOM_INFO_CARD_ID, index, M_ROOM_MAX_USER, roomInfo[index].cardID[M_ROOM_MAX_USER]);
+    }
+
 
     return 0;
 }
@@ -216,4 +266,35 @@ bool matchRoomPassword(uint8_t index, uint8_t *pw, uint8_t lenPW)
     return FALSE;
 }
 
+uint8_t matchCardID(uint8_t* uid)
+{
+    uint8_t i = 0, j = 0, len = 0;
 
+    while( *(uid + len) != 0xFF)
+    {
+        len ++;
+    }
+
+    for(i = 0; i < M_MAX_BOX; i++)
+    {
+        for(j = 0; j < M_ROOM_MAX_USER; j ++)
+        {
+            if (memcmp(roomInfo[i].cardID[j], uid, len) == 0)
+            {
+                if (len < M_CARD_ID_MAX_LENGTH)
+                {
+                    if (roomInfo[i].cardID[len] == 0)
+                    {
+                        return i;
+                    }
+                }
+                else
+                {
+                    return i;
+                }
+            }
+        }
+    }
+
+    return i;
+}

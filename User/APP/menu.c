@@ -286,6 +286,7 @@ static volatile eUIIndex currentMenu = E_UI_WELCOME;
 
 u8 lockStat = 0;
 
+static bool bCardAuth = FALSE;
 
 //u8 DockCard[2][4] = 
 //    {
@@ -402,6 +403,7 @@ static void scanCard(unsigned char* UID)
 
 static void isAuthCard(uint8_t* uid)
 {
+#if 0
     uint8_t i = 0, j = 0;
 
     for(i = 0; i < 2; i++)
@@ -438,6 +440,24 @@ static void isAuthCard(uint8_t* uid)
             currentMenu = E_UI_CARD_INVALID;
         }
     }
+#endif
+
+
+    matchedIndex= matchCardID(uid);
+
+    if (matchedIndex < M_MAX_BOX)
+    {
+        OpenLock(1<<matchedIndex);
+        
+        lockStat = 1;
+        IS_TIMEOUT_1MS(LockPlus,0);
+        currentMenu = E_UI_OPEN_SUCCESS;
+    }
+    else
+    {
+        currentMenu = E_UI_CARD_INVALID;
+    }
+    
 
     if(menuTab[currentMenu].menu_enter != 0)
     {
@@ -510,6 +530,7 @@ static void action_welcome(uint8_t key)
     if(isNumKey(key))
     {
         currentMenu = E_UI_USER_ROOM_NUM;
+        bCardAuth = FALSE;
         enter_room_number(key);
     }
 }
@@ -518,6 +539,10 @@ static void action_welcome(uint8_t key)
 
 static void draw_open_success(void)
 {
+    uint8_t tmp[M_ROOM_NUM_MAX_LENGTH] = 0;
+    sprintf(tmp,"%s",roomInfo[matchedIndex].number);
+    DisplayStr(tmp,0,0);
+
     DisplayStr("箱门已打开", 0, 2);
     DisplayStr("请随手关闭箱门", 2, 0);
 }
@@ -575,12 +600,16 @@ static void draw_room_number(void)
 
 static void enter_room_number(uint8_t key)
 {
-    if (isNumKey(key))
-    {
-        lenRoomNum = 0;
-        memset(roomNum, 0, sizeof(roomNum));   
+    lenRoomNum = 0;
+    memset(roomNum, 0, sizeof(roomNum));
+    matchedIndex = 0xFF;
+
+    if (isNumKey(key) && !bCardAuth)
+    {   
         roomNum[lenRoomNum++] = key;
     }
+
+    
     
     ClearDisplay();
     draw_room_number();
@@ -661,10 +690,20 @@ static void action_room_number(uint8_t key)
 
                 if (matchedIndex < M_MAX_BOX)
                 {
-                    currentMenu = E_UI_USER_PASSWORD;
-                
                     ClearDisplay();
-                    enter_room_pw(key);
+                
+                    if (bCardAuth) 
+                    {
+                        bCardAuth = FALSE;
+                        currentMenu = E_UI_USER_SETTING_CARD_AUTH;
+                        enter_user_setting_card_auth(key);
+                    }
+                    else
+                    {
+                        currentMenu = E_UI_USER_PASSWORD;
+                        enter_room_pw(key);
+                    }
+                    
                 }
                 else                                                    /* It's a invalid room number */
                 {
@@ -789,7 +828,16 @@ static void draw_room_invalid(void)
 
 static void enter_room_invalid(uint8_t key)
 {
-    LcdWcom(0x01);
+    ClearDisplay();
+
+    if (bCardAuth) 
+    {
+        menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
+    }
+    else
+    {
+        menuTab[E_UI_ROOM_INVALID].parent = E_UI_WELCOME;
+    }
 
     bsp_StartTimer(1, 2000, timeout);
 }
@@ -927,6 +975,10 @@ static void draw_user_setting(void)
 
 static void enter_user_setting(uint8_t key)
 {
+    lenRoomNum = 0;
+    memset(roomNum, 0, sizeof(roomNum));
+    matchedIndex = 0xFF;
+
     LcdWcom(0x01);
 
     bsp_StartTimer(1, 10000, timeout);
@@ -953,8 +1005,10 @@ static void action_user_setting(uint8_t key)
             break;
 
         case '3':
-            currentMenu = E_UI_USER_SETTING_CARD_AUTH;
-            enter_user_setting_card_auth(key);
+            bCardAuth = TRUE;
+            currentMenu = E_UI_USER_ROOM_NUM;
+            //enter_user_setting_card_auth(key);
+            enter_room_number(key);
             break;
 
         default:
@@ -1253,6 +1307,9 @@ static void draw_user_setting_card_auth(void)
 
     cnt++;
     cnt %= 40;
+
+    
+    
     
     if (!(cnt / 30) )
     {
@@ -1272,7 +1329,7 @@ static void enter_user_setting_card_auth(uint8_t key)
 
 static void action_user_setting_card_auth(uint8_t key)
 {
-    uint8_t UID[5];
+    uint8_t UID[5], tmps[5];
     memset(UID, 0xFF, 5);
 
     draw_user_setting_card_auth();
@@ -1282,7 +1339,7 @@ static void action_user_setting_card_auth(uint8_t key)
 
     if (memcmp(UID, "\xFF\xFF\xFF\xFF\xFF", 5))
     {
-        SetRoomCardID(0, UID);
+        SetRoomCardID(matchedIndex, UID);
     }
 }
 

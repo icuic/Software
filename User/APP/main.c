@@ -91,90 +91,22 @@ int main(void)
 
     while (1)
     {
-        //scaned key
-        //menu_handle(KeyCode);
-        //DisplayKey(KeyCode);
-
-        //sprintf(tmps,"%d",aaa);
-        //DisplayStr(tmps,2,0);
-
-        
-        #if 1
+        // scan key
         if(IS_TIMEOUT_1MS(Keyscan,20))
         {
             KeyCode = scankey();
             //DisplayKey(bbb);
-            menu_handle(KeyCode);
+            
             IS_TIMEOUT_1MS(Keyscan,0);
         }
-        #endif
-        
-        
 
-#if 0
-        //scan card
-        if(PcdRequest(0x52,Temp)==MI_OK)
-        {
-            if(Temp[0]==0x04&&Temp[1]==0x00) 
-            {
-                //DisplayStr("MFOne-S50",1,0);
-            }
-            else if(Temp[0]==0x02&&Temp[1]==0x00)
-            {
-                DisplayStr("MFOne-S70",1,0);
-            }
-            else if(Temp[0]==0x44&&Temp[1]==0x00)
-            {
-                DisplayStr("MF-UltraLight",1,0);
-            }
-            else if(Temp[0]==0x08&&Temp[1]==0x00)
-            {
-                DisplayStr("MF-Pro",1,0);
-            }
-            else if(Temp[0]==0x44&&Temp[1]==0x03)
-            {
-                DisplayStr("MF Desire",1,0);
-            }
-            else
-            {
-                DisplayStr("Unknown",1,0);
-            }
-            
-            if(PcdAnticoll(UID)==MI_OK)
-            { 
-                //DisplayStr("Card Id is:",2,0);
-                sprintf(tmps,"%02X%02X%02X%02X",UID[0],UID[1],UID[2],UID[3]);
-                tmps[8] = 0;
-                //DisplayStr(tmps,3,0);
-                for(i=0;i<2;i++)
-                {
-                    for(j=0;j<4;j++)
-                    {
-                        if(DockCard[i][j] != UID[j])
-                        {
-                            break;
-                        }
-                    }
 
-                    if(j == 4)
-                    {
-                        if(i ==0)
-                        {
-                            OpenLock(0X0001);
-                        }
-                        else
-                        {
-                            OpenLock(0X0002);
-                        }
-                        lockStat = 1;
-                        IS_TIMEOUT_1MS(LockPlus,0);
-                        currentMenu = E_UI_OPEN_SUCCESS;
-                    }
-                }
-                
-            }
-        }
-#endif
+        // menu display
+        menu_handle(KeyCode);
+        KeyCode = M_KEY_NO_KEY;
+
+
+        // scan lock state
         if(lockStat== 1)
         {
             if(IS_TIMEOUT_1MS(LockPlus,50))
@@ -182,8 +114,6 @@ int main(void)
                 OpenLock(0x0000);
                 lockStat = 0;
             }
-
-      
         }
         
     }
