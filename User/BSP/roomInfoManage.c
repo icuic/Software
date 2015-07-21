@@ -281,20 +281,51 @@ uint8_t matchCardID(uint8_t* uid)
         {
             if (memcmp(roomInfo[i].cardID[j], uid, len) == 0)
             {
-                if (len < M_CARD_ID_MAX_LENGTH)
-                {
-                    if (roomInfo[i].cardID[len] == 0)
+                //if (len < M_CARD_ID_MAX_LENGTH)
+                //{
+                //    if (roomInfo[i].cardID[len] == 0)
                     {
                         return i;
                     }
-                }
-                else
-                {
-                    return i;
-                }
+                //    else
+                //    {
+                //        continue;
+                //    }
+                //}
+            }
+            else
+            {
+                continue;
             }
         }
     }
 
     return i;
+}
+
+void clearCard(uint8_t roomIndex)
+{
+    uint8_t i = 0, j = 0;
+
+    if (roomIndex < M_MAX_BOX)
+    {
+        for (i = 0; i < M_ROOM_MAX_USER; i++)
+        {
+            for(j = 0; j < M_CARD_ID_MAX_LENGTH; j++)
+            {
+                if (roomInfo[roomIndex].cardID[j] != 0)
+                {
+                    break;
+                }
+            }
+        
+            if (j != M_CARD_ID_MAX_LENGTH)
+            {
+                // update RAM
+                memset(roomInfo[roomIndex].cardID[i], 0, M_CARD_ID_MAX_LENGTH);
+                // update EEPROM
+                writeFragToEEP(E_ROOM_INFO_CARD_ID, roomIndex, i, roomInfo[roomIndex].cardID[i]);
+            }
+        }
+    }
 }

@@ -31,6 +31,10 @@ typedef enum
 
     E_UI_CARD_INVALID,              //  ÎÞÐ§¿¨
 
+    E_UI_USER_SETTING_CARD_CLEAR,   //  ÍË¿¨
+
+    E_UI_CARD_CLEAR_SUCCESS,
+
     E_UI_MAX
 }eUIIndex;
 

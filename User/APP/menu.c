@@ -105,6 +105,16 @@ static void enter_card_invalid(uint8_t key);
 static void action_card_invalid(uint8_t key);
 
 
+static void draw_user_setting_card_clear(void);
+static void enter_user_setting_card_clear(uint8_t key);
+static void action_user_setting_card_clear(uint8_t key);
+
+
+static void draw_card_clear_success(void);
+static void enter_card_clear_success(uint8_t key);
+static void action_card_clear_success(uint8_t key);
+
+
 
 static UIStruct menuTab[E_UI_MAX] = 
 {
@@ -268,7 +278,25 @@ static UIStruct menuTab[E_UI_MAX] =
     draw_card_invalid,
     enter_card_invalid,
     action_card_invalid,
-    }
+    },
+
+    {
+    E_UI_USER_SETTING_CARD_CLEAR,
+    E_UI_USER_SETTING,
+    10 * M_1_SECOND,    
+    draw_user_setting_card_clear,
+    enter_user_setting_card_clear,
+    action_user_setting_card_clear,
+    },
+
+    {
+    E_UI_CARD_CLEAR_SUCCESS,
+    E_UI_USER_SETTING,
+    2 * M_1_SECOND,    
+    draw_card_clear_success,
+    enter_card_clear_success,
+    action_card_clear_success,
+    },
 };
 
 typedef enum
@@ -279,14 +307,23 @@ typedef enum
     E_BOX_PW_END
 }eBoxPwSubState;
 
+typedef enum
+{
+    E_FOR_OPEN_BOX = 0,
+    E_FOR_AUTH_CARD,
+    E_FOR_CLEAR_CARD,
+    E_FOR_END
+}eMenuEnterFor;
+
 static eBoxPwSubState subState = E_BOX_PW_SUB_ROOM;   
 
 
 static volatile eUIIndex currentMenu = E_UI_WELCOME;
+static eMenuEnterFor roomNumFor = E_FOR_OPEN_BOX;
 
 u8 lockStat = 0;
 
-static bool bCardAuth = FALSE;
+
 
 //u8 DockCard[2][4] = 
 //    {
@@ -530,7 +567,7 @@ static void action_welcome(uint8_t key)
     if(isNumKey(key))
     {
         currentMenu = E_UI_USER_ROOM_NUM;
-        bCardAuth = FALSE;
+        roomNumFor = E_FOR_OPEN_BOX;
         enter_room_number(key);
     }
 }
@@ -604,12 +641,11 @@ static void enter_room_number(uint8_t key)
     memset(roomNum, 0, sizeof(roomNum));
     matchedIndex = 0xFF;
 
-    if (isNumKey(key) && !bCardAuth)
+    if (isNumKey(key) && roomNumFor == E_FOR_OPEN_BOX)
     {   
         roomNum[lenRoomNum++] = key;
     }
 
-    
     
     ClearDisplay();
     draw_room_number();
@@ -692,16 +728,22 @@ static void action_room_number(uint8_t key)
                 {
                     ClearDisplay();
                 
-                    if (bCardAuth) 
-                    {
-                        bCardAuth = FALSE;
-                        currentMenu = E_UI_USER_SETTING_CARD_AUTH;
-                        enter_user_setting_card_auth(key);
-                    }
-                    else
+                    if (roomNumFor == E_FOR_OPEN_BOX)
                     {
                         currentMenu = E_UI_USER_PASSWORD;
                         enter_room_pw(key);
+                    }
+                    else if (roomNumFor == E_FOR_AUTH_CARD) 
+                    {
+                        roomNumFor = E_FOR_OPEN_BOX;
+                        currentMenu = E_UI_USER_SETTING_CARD_AUTH;
+                        enter_user_setting_card_auth(key);
+                    }
+                    else if (roomNumFor == E_FOR_CLEAR_CARD)
+                    {
+                        roomNumFor = E_FOR_OPEN_BOX;
+                        currentMenu = E_UI_USER_SETTING_CARD_CLEAR;
+                        enter_user_setting_card_clear(key);
                     }
                     
                 }
@@ -830,16 +872,26 @@ static void enter_room_invalid(uint8_t key)
 {
     ClearDisplay();
 
-    if (bCardAuth) 
+    switch(roomNumFor)
     {
-        menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
-    }
-    else
-    {
-        menuTab[E_UI_ROOM_INVALID].parent = E_UI_WELCOME;
+        case E_FOR_OPEN_BOX:
+        {
+            menuTab[E_UI_ROOM_INVALID].parent = E_UI_WELCOME;
+        }
+        break;
+
+        case E_FOR_AUTH_CARD:
+        case E_FOR_CLEAR_CARD:
+        {
+            menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
+        }
+        break;
+
+        default:
+        break;
     }
 
-    bsp_StartTimer(1, 2000, timeout);
+    bsp_StartTimer(1, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_room_invalid(uint8_t key)
@@ -970,7 +1022,7 @@ static void draw_user_setting(void)
     DisplayStr("2 房号", 1, 4);
     DisplayStr("3 授卡", 2, 0);
     DisplayStr("4 退卡", 2, 4);    
-    DisplayStr("5 退出", 3, 0);
+    DisplayStr("0 退出", 3, 0);
 }
 
 static void enter_user_setting(uint8_t key)
@@ -1005,10 +1057,20 @@ static void action_user_setting(uint8_t key)
             break;
 
         case '3':
-            bCardAuth = TRUE;
+            roomNumFor = E_FOR_AUTH_CARD;
             currentMenu = E_UI_USER_ROOM_NUM;
-            //enter_user_setting_card_auth(key);
             enter_room_number(key);
+            break;
+
+        case '4':
+            roomNumFor = E_FOR_CLEAR_CARD;
+            currentMenu = E_UI_USER_ROOM_NUM;
+            enter_room_number(key);
+            break;
+
+        case '0':
+            currentMenu = E_UI_ADMIN;
+            enter_admin(key);
             break;
 
         default:
@@ -1037,12 +1099,34 @@ static void enter_admin_setting(uint8_t key)
 
 static void action_admin_setting(uint8_t key)
 {    
+    uint8_t tmp = key; 
+    
     draw_admin_setting();
 
-    switch(key)
+    translateKey(&tmp, 1);
+
+    switch(tmp)
     {
-        case 1:
+        case '1':
             break;
+
+        case '2':
+            break;
+
+        case '3':
+            break;
+
+        case '4':
+            break;
+
+        case '5':
+            break;
+
+        case '0':
+            currentMenu = E_UI_ADMIN;
+            enter_admin(key);
+            break;
+
 
         default:
             break;
@@ -1074,7 +1158,24 @@ static void action_system_setting(uint8_t key)
 
     switch(key)
     {
-        case 1:
+        case M_KEY_1:
+            break;
+
+        case M_KEY_2:
+            break;
+
+        case M_KEY_3:
+            break;
+
+        case M_KEY_4:
+            break;
+
+        case M_KEY_5:
+            break;
+
+        case M_KEY_0:
+            currentMenu = E_UI_ADMIN;
+            enter_admin(key);
             break;
 
         default:
@@ -1111,7 +1212,24 @@ static void action_box_setting(uint8_t key)
 
     switch(key)
     {
-        case 1:
+        case M_KEY_1:
+            break;
+
+        case M_KEY_2:
+            break;
+
+        case M_KEY_3:
+            break;
+
+        case M_KEY_4:
+            break;
+
+        case M_KEY_5:
+            break;
+
+        case M_KEY_0:
+            currentMenu = E_UI_ADMIN;
+            enter_admin(key);
             break;
 
         default:
@@ -1503,6 +1621,69 @@ static void enter_card_invalid(uint8_t key)
 static void action_card_invalid(uint8_t key)
 {
     draw_card_invalid();
+}
+
+
+static void draw_user_setting_card_clear(void)
+{
+
+    DisplayStr("退卡", 0, 3);
+
+    DisplayStr("1.确定", 3, 0);
+    DisplayStr("0.取消", 3, 5);
+    
+}
+
+static void enter_user_setting_card_clear(uint8_t key)
+{    
+    ClearDisplay();
+    
+    bsp_StartTimer(1, menuTab[currentMenu].timeout, timeout);
+}
+
+static void action_user_setting_card_clear(uint8_t key)
+{
+
+    draw_user_setting_card_clear();
+
+    switch(key)
+    {
+        case M_KEY_0:
+        {
+            currentMenu = E_UI_USER_SETTING;
+            enter_user_setting(key);
+        }
+        break;
+
+        case M_KEY_1:
+        {
+            clearCard(matchedIndex);
+            currentMenu = E_UI_CARD_CLEAR_SUCCESS;
+            enter_card_clear_success(key);
+        }
+        break;
+
+        default:
+        break;
+    }
+}
+
+
+static void draw_card_clear_success(void)
+{
+    DisplayStr("退卡成功", 1, 2);
+}
+
+static void enter_card_clear_success(uint8_t key)
+{
+    ClearDisplay();
+
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
+}
+
+static void action_card_clear_success(uint8_t key)
+{
+    draw_card_clear_success();
 }
 
 
