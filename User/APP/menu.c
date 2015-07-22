@@ -115,6 +115,10 @@ static void enter_card_clear_success(uint8_t key);
 static void action_card_clear_success(uint8_t key);
 
 
+static void draw_tips(void);
+static void enter_tips(uint8_t key);
+static void action_tips(uint8_t key);
+
 
 static UIStruct menuTab[E_UI_MAX] = 
 {
@@ -297,7 +301,26 @@ static UIStruct menuTab[E_UI_MAX] =
     enter_card_clear_success,
     action_card_clear_success,
     },
+
+    {
+    E_UI_TIPS,
+    E_UI_WELCOME,
+    2 * M_1_SECOND,    
+    draw_tips,
+    enter_tips,
+    action_tips,
+    },
 };
+
+typedef enum
+{
+    E_TIPS_TYPE_BOX_OPEN_SUCCESS = 0,       // 箱门已打开
+    E_TIPS_TYPE_ROOM_NUM_INVALID,           // 无效房间号
+    E_TIPS_TYPE_ROOM_PW_ERROR,              // 密码错误
+    E_TIPS_TYPE_ROOM_PW_SETTING_SUCCESS,    // 房间密码设置成功
+    E_TIPS_TYPE_CARD_DISAUTH_SUCCESS,       // 退卡成功
+    E_TIPS_TYPE_END
+}eTipsType;
 
 typedef enum
 {
@@ -320,6 +343,9 @@ static eBoxPwSubState subState = E_BOX_PW_SUB_ROOM;
 
 static volatile eUIIndex currentMenu = E_UI_WELCOME;
 static eMenuEnterFor roomNumFor = E_FOR_OPEN_BOX;
+
+static eTipsType tipsType = E_TIPS_TYPE_BOX_OPEN_SUCCESS;
+
 
 u8 lockStat = 0;
 
@@ -488,7 +514,9 @@ static void isAuthCard(uint8_t* uid)
         
         lockStat = 1;
         IS_TIMEOUT_1MS(LockPlus,0);
-        currentMenu = E_UI_OPEN_SUCCESS;
+
+        currentMenu = E_UI_TIPS;
+        tipsType = E_TIPS_TYPE_BOX_OPEN_SUCCESS;
     }
     else
     {
@@ -843,9 +871,10 @@ static void action_room_pw(uint8_t key)
                 IS_TIMEOUT_1MS(LockPlus,0);
 
             
-                currentMenu = E_UI_OPEN_SUCCESS;
+                currentMenu = E_UI_TIPS;
+                tipsType = E_TIPS_TYPE_BOX_OPEN_SUCCESS;
 
-                enter_open_success(key);
+                enter_tips(key);
             }
             else
             {
@@ -1658,8 +1687,10 @@ static void action_user_setting_card_clear(uint8_t key)
         case M_KEY_1:
         {
             clearCard(matchedIndex);
-            currentMenu = E_UI_CARD_CLEAR_SUCCESS;
-            enter_card_clear_success(key);
+
+            tipsType = E_TIPS_TYPE_CARD_DISAUTH_SUCCESS;
+            currentMenu = E_UI_TIPS;
+            enter_tips(key);
         }
         break;
 
@@ -1684,6 +1715,76 @@ static void enter_card_clear_success(uint8_t key)
 static void action_card_clear_success(uint8_t key)
 {
     draw_card_clear_success();
+}
+
+
+static void draw_tips(void)
+{
+    switch(tipsType)
+    {
+        case E_TIPS_TYPE_BOX_OPEN_SUCCESS:
+        {
+            uint8_t tmp[M_ROOM_NUM_MAX_LENGTH] = 0;
+            sprintf(tmp,"%s",roomInfo[matchedIndex].number);
+            DisplayStr(tmp,0,0);
+            
+            DisplayStr("箱门已打开", 0, 2);
+            DisplayStr("请随手关闭箱门", 2, 0);
+        }
+        break;
+
+        case E_TIPS_TYPE_ROOM_NUM_INVALID:
+        break;
+
+        case E_TIPS_TYPE_ROOM_PW_ERROR:
+        break;
+
+        case E_TIPS_TYPE_ROOM_PW_SETTING_SUCCESS:
+        break;
+
+        case E_TIPS_TYPE_CARD_DISAUTH_SUCCESS:
+            DisplayStr("退卡成功", 1, 2);
+        break;
+
+        default:
+        break;        
+    }
+}
+
+static void enter_tips(uint8_t key)
+{
+    switch(tipsType)
+    {
+        case E_TIPS_TYPE_BOX_OPEN_SUCCESS:
+            menuTab[currentMenu].parent = E_UI_WELCOME;
+        break;
+
+        case E_TIPS_TYPE_ROOM_NUM_INVALID:
+        break;
+
+        case E_TIPS_TYPE_ROOM_PW_ERROR:
+        break;
+
+        case E_TIPS_TYPE_ROOM_PW_SETTING_SUCCESS:
+        break;
+
+        case E_TIPS_TYPE_CARD_DISAUTH_SUCCESS:
+            menuTab[currentMenu].parent = E_UI_USER_SETTING;
+        break;
+
+        default:
+        break;        
+    }
+
+
+    ClearDisplay();
+
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
+}
+
+static void action_tips(uint8_t key)
+{
+    draw_tips();
 }
 
 

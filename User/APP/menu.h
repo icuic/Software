@@ -35,6 +35,8 @@ typedef enum
 
     E_UI_CARD_CLEAR_SUCCESS,
 
+    E_UI_TIPS,                      // 操作结果提示
+
     E_UI_MAX
 }eUIIndex;
 
