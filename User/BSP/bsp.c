@@ -160,6 +160,8 @@ void BspInit(void)
     FLASH_Unlock();
 
     /* EEPROM Init */
-    EE_Init();    
+    EE_Init();  
+
+    Flash_Init();
 }
 

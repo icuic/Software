@@ -99,9 +99,13 @@ void rtcInit(void)
     Time_Adjust();
 
     BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
+
+    //DisplayStr("Not init", 0, 0);
   }
   else
   {
+    //DisplayStr("Alread init", 0, 0);
+  
     /* Check if the Power On Reset flag is set */
     if (RCC_GetFlagStatus(RCC_FLAG_PORRST) != RESET)
     {
