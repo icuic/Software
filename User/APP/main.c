@@ -79,19 +79,11 @@ void DisplayStr(u8 *str,u8 x,u8 y)
 int main(void)
 {
     extern u8 lockStat;
-    u32 id = 0;
     
     BspInit();
 
-    
-    initVirtAddVarTab();
-    recoverRoomInfoFromEEPROM();
-    recoverAdminCardIDFromEEPROM();
-
-
-    id = Flash_ReadID();
-
-    
+    recoverRoomInfoFromFlash();
+    recoverAdminCardIDFromFlash();
 
     while (1)
     {

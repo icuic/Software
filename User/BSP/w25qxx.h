@@ -3,6 +3,10 @@
 
 #include "stm32f10x.h"
 
+#define FLASH_PAGE_SIZE     (256)           // 256 bytes
+#define FLASH_SECTOR_SIZE   (4 * 1024)      // 4K bytes
+#define FLASH_BLOCK_SIZE    (64 * 1024)     // 64K bytes
+
 void Flash_Init(void);
 void Flash_Write_Enable(void);
 void Flash_WaitWriteEnd(void);
@@ -20,4 +24,3 @@ u32  Flash_ReadID(void);
 
 
 #endif
-

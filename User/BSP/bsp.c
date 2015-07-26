@@ -157,10 +157,10 @@ void BspInit(void)
     //BspTim3Open();
 
     /* Unlock the Flash Program Erase controller */
-    FLASH_Unlock();
+    //FLASH_Unlock();
 
     /* EEPROM Init */
-    EE_Init();  
+    //EE_Init();  
 
     Flash_Init();
 }

@@ -12,7 +12,7 @@
 #define M_1_SECOND              1000
 #define M_NEVER_GO_BACK         0xFFFF
 
-#define M_DEFAULT_VALUE         0xFF
+#define M_DEFAULT_VALUE         0
 
 extern void DisplayStr(u8 *str,u8 x,u8 y);
 extern void DisplayKey(u8 keyvalue, u8 x, u8 y);
@@ -21,9 +21,6 @@ static void draw_welcome(void);
 static void enter_welcome(uint8_t key);
 static void action_welcome(uint8_t key);
 
-static void draw_open_success(void);
-static void enter_open_success(uint8_t key);
-static void action_open_success(uint8_t key);
 
 static void draw_room_number(void);
 static void enter_room_number(uint8_t key);
@@ -100,11 +97,6 @@ static void enter_user_setting_box_num(uint8_t key);
 static void action_user_setting_box_num(uint8_t key);
 
 
-static void draw_card_invalid(void);
-static void enter_card_invalid(uint8_t key);
-static void action_card_invalid(uint8_t key);
-
-
 static void draw_user_setting_card_clear(void);
 static void enter_user_setting_card_clear(uint8_t key);
 static void action_user_setting_card_clear(uint8_t key);
@@ -147,15 +139,6 @@ static UIStruct menuTab[E_UI_MAX] =
     draw_room_pw,
     enter_room_pw,
     action_room_pw,
-    },
-    
-    {
-    E_UI_OPEN_SUCCESS,
-    E_UI_WELCOME,    
-    2 * M_1_SECOND,
-    draw_open_success,
-    enter_open_success,
-    action_open_success,
     },
 
     {
@@ -276,15 +259,6 @@ static UIStruct menuTab[E_UI_MAX] =
     },
 
     {
-    E_UI_CARD_INVALID,
-    E_UI_WELCOME,
-    2 * M_1_SECOND,
-    draw_card_invalid,
-    enter_card_invalid,
-    action_card_invalid,
-    },
-
-    {
     E_UI_USER_SETTING_CARD_CLEAR,
     E_UI_USER_SETTING,
     10 * M_1_SECOND,    
@@ -319,6 +293,7 @@ typedef enum
     E_TIPS_TYPE_ROOM_PW_ERROR,              // 密码错误
     E_TIPS_TYPE_ROOM_PW_SETTING_SUCCESS,    // 房间密码设置成功
     E_TIPS_TYPE_CARD_DISAUTH_SUCCESS,       // 退卡成功
+    E_TIPS_TYPE_CARD_INVALID,               // 无效卡
     E_TIPS_TYPE_END
 }eTipsType;
 
@@ -520,7 +495,9 @@ static void isAuthCard(uint8_t* uid)
     }
     else
     {
-        currentMenu = E_UI_CARD_INVALID;
+        tipsType = E_TIPS_TYPE_CARD_INVALID;
+        currentMenu = E_UI_TIPS;
+        enter_tips(M_KEY_NO_KEY);
     }
     
 
@@ -556,16 +533,32 @@ static void DisplayDataTime(uint32_t TimeVar)
 
 
 static void draw_welcome(void)
-{
+{   
+#if 0
+    uint8_t i = 0;
+    uint8_t tmp[(M_MAX_BOX + 8) / 8 + 1];
+    
     DisplayStr("欢迎使用", 0, 2);
     DisplayStr("请读卡", 2, 2);
 
+    if (bitMapFlashDateError != 0)
+    {
+        sprintf(tmp, "%x", bitMapFlashDateError);
+
+        //DisplayStr(tmp, 1, 0);
+    }
+#endif
+
+    void DisplayPic();
+    
     DisplayDataTime(RTC_GetCounter());
 }
 
 static void enter_welcome(uint8_t key)
 {
     ClearDisplay();
+
+    LcdWcom(0x34);  // 扩充指令
 }
 
 static void action_welcome(uint8_t key)
@@ -578,7 +571,7 @@ static void action_welcome(uint8_t key)
     /* scan card */
     scanCard(UID);
 
-    if (memcmp(UID, "\xFF\xFF\xFF\xFF\xFF", M_CARD_ID_MAX_LENGTH))
+    if (memcmp(UID, "\x00\x00\x00\x00\x00\x00", M_CARD_ID_MAX_LENGTH))
     {
         isAuthCard(UID);
     }
@@ -600,29 +593,6 @@ static void action_welcome(uint8_t key)
     }
 }
 
-/* --------------------------------------------------------------- */
-
-static void draw_open_success(void)
-{
-    uint8_t tmp[M_ROOM_NUM_MAX_LENGTH] = 0;
-    sprintf(tmp,"%s",roomInfo[matchedIndex].number);
-    DisplayStr(tmp,0,0);
-
-    DisplayStr("箱门已打开", 0, 2);
-    DisplayStr("请随手关闭箱门", 2, 0);
-}
-
-static void enter_open_success(uint8_t key)
-{
-    ClearDisplay();
-
-    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
-}
-
-static void action_open_success(uint8_t key)
-{
-    draw_open_success();
-}
 
 /* --------------------------------------------------------------- */
 static void DisplayRoomNumber(uint8_t keyvalue)
@@ -980,7 +950,7 @@ static void action_set_admin_card(uint8_t key)
         // update RAM
         memcpy(adminCardID, UID, 4);
         // update EEPROM
-        writeAdminCardIDToEEPROM(UID);
+        writeAdminCardIDToFlash(UID);
     }
 }
 
@@ -1635,24 +1605,6 @@ static void action_user_setting_box_num(uint8_t key)
 }
 
 
-static void draw_card_invalid(void)
-{
-    DisplayStr("无效卡", 1, 2);
-}
-
-static void enter_card_invalid(uint8_t key)
-{
-    ClearDisplay();
-
-    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
-}
-
-static void action_card_invalid(uint8_t key)
-{
-    draw_card_invalid();
-}
-
-
 static void draw_user_setting_card_clear(void)
 {
 
@@ -1746,6 +1698,10 @@ static void draw_tips(void)
             DisplayStr("退卡成功", 1, 2);
         break;
 
+        case E_TIPS_TYPE_CARD_INVALID:
+            DisplayStr("无效卡", 1, 2);
+        break;
+
         default:
         break;        
     }
@@ -1770,6 +1726,10 @@ static void enter_tips(uint8_t key)
 
         case E_TIPS_TYPE_CARD_DISAUTH_SUCCESS:
             menuTab[currentMenu].parent = E_UI_USER_SETTING;
+        break;
+
+        case E_TIPS_TYPE_CARD_INVALID:
+            menuTab[currentMenu].parent = E_UI_WELCOME;
         break;
 
         default:

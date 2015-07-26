@@ -8,7 +8,7 @@ typedef enum
     //E_UI_ADMIN_PASSWORD,
     E_UI_USER_ROOM_NUM,
     E_UI_USER_PASSWORD,
-    E_UI_OPEN_SUCCESS,
+
     E_UI_ROOM_INVALID,
     E_UI_ROOM_PW_ERROR, // password error
 
@@ -28,8 +28,6 @@ typedef enum
     E_UI_USER_SETTING_CARD_AUTH,    // 授卡
 
     E_UI_USER_SETTING_BOX_NUM,      // 设置房间号与锁的对应关系
-
-    E_UI_CARD_INVALID,              //  无效卡
 
     E_UI_USER_SETTING_CARD_CLEAR,   //  退卡
 
