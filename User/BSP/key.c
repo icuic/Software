@@ -13,7 +13,7 @@
 #define KEYVAL3     0x30
 
 #define KEY_NONE    0xff
-#define KeyValidTime    1   /* 有效按键必须持续5*10ms */
+#define KeyValidTime    3   /* 有效按键必须持续5*10ms */
 
 uint8_t KeyCode;          /* 存放检测到的按键值 */
 static uint8_t ucDetectTime = 0;      /* 计时到同一按键按下的时间 */

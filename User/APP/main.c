@@ -79,6 +79,8 @@ void DisplayStr(u8 *str,u8 x,u8 y)
 int main(void)
 {
     extern u8 lockStat;
+
+    uint8_t u08Key;
     
     BspInit();
 
@@ -88,14 +90,17 @@ int main(void)
     while (1)
     {
         // scan key
-        if(IS_TIMEOUT_1MS(Keyscan,20))
+        #if 0
+        if(IS_TIMEOUT_1MS(Keyscan,100))
         {
             KeyCode = scankey();
             //DisplayKey(bbb);
             
             IS_TIMEOUT_1MS(Keyscan,0);
         }
+        #endif
 
+        key_detect();
 
         // menu display
         menu_handle(KeyCode);

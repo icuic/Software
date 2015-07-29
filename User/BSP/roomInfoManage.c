@@ -11,6 +11,8 @@
 
 stRoomInfo roomInfo[M_MAX_BOX];
 uint8_t adminCardID[M_CARD_ID_MAX_LENGTH];
+
+
 long long bitMapFlashDateError;
 
 
