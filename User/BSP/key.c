@@ -1,5 +1,6 @@
 #include "key.h"
 #include "core_cmInstr.h"
+#include "beep.h"
 
 /*********用户一般不可以改动************************/
 
@@ -257,6 +258,8 @@ uint8_t key_detect(void)
         {
             if (ucDetectTime >= KeyValidTime)
             {
+                Beep(100);
+                
                 KeyCode = ucKeyCodeTemp;
                 ClearKeyFlag();   //这句不能删
                 return KeyCode;

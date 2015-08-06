@@ -9,6 +9,8 @@
 
 
 #define M_SOFT_TIMER_FOR_MENU   1
+#define M_SOFT_TIMER_FOR_BEEP   2
+
 #define M_1_SECOND              1000
 #define M_NEVER_GO_BACK         0xFFFF
 
@@ -246,7 +248,7 @@ static UIStruct menuTab[E_UI_MAX] =
     {
     E_UI_USER_SETTING_CARD_AUTH,
     E_UI_USER_SETTING,
-    10 * M_1_SECOND,
+    5 * M_1_SECOND,
     draw_user_setting_card_auth,
     enter_user_setting_card_auth,
     action_user_setting_card_auth,
@@ -320,9 +322,9 @@ typedef enum
 
 typedef enum
 {
-    E_FOR_OPEN_BOX = 0,
-    E_FOR_AUTH_CARD,
-    E_FOR_CLEAR_CARD,
+    E_FOR_OPEN_BOX = 0,     // 密码开箱
+    E_FOR_AUTH_CARD,        // 绑定卡片
+    E_FOR_CLEAR_CARD,       // 解除绑定卡片
     E_FOR_END
 }eMenuEnterFor;
 
@@ -347,6 +349,7 @@ u8 lockStat = 0;
 //        {0xD5,0x38,0x08,0xC0}
 //};
 
+static uint8_t timeOutCnt = 0;
 
 
 static uint8_t lenRoomNum = 0;                          // length of room number
@@ -364,14 +367,26 @@ static uint8_t matchedIndex = 0xFF;                     //
 
 static void timeout()
 {
-    /* Go back to parent menu once timeout */
-    currentMenu = menuTab[currentMenu].parent;
-
-    /* Clear LCD display */
-    ClearDisplay();
-
-    /* Init parameters for next menu's display */
-    menuTab[currentMenu].menu_enter(M_KEY_NO_KEY);
+   
+    if(timeOutCnt < 3)
+    {
+        timeOutCnt++;
+        Beep(50);
+        bsp_StartTimer(1, 500, timeout);
+    }
+    else
+    {
+        timeOutCnt = 0;
+    
+        /* Go back to parent menu once timeout */
+        currentMenu = menuTab[currentMenu].parent;
+        
+        /* Clear LCD display */
+        ClearDisplay();
+        
+        /* Init parameters for next menu's display */
+        menuTab[currentMenu].menu_enter(M_KEY_NO_KEY);
+    }
 }
 
 static void scanCard(unsigned char* UID)
@@ -524,26 +539,21 @@ static void isAuthCard(uint8_t* uid)
 
 static void DisplayDataTime(uint32_t TimeVar)
 {
-    uint32_t THH = 0, TMM = 0, TSS = 0;
-    uint8_t tmp[16];
+    static uint8_t t = 0;
     
-    /* Reset RTC Counter when Time is 23:59:59 */
-    if (RTC_GetCounter() == 0x0001517F)
+    uint8_t tmp[20];
+    RTC_Get();//更新时间   
+
+    if(t != calendar.sec) //1秒时间到
     {
-       RTC_SetCounter(0x0);
-       /* Wait until last write operation on RTC registers has finished */
-       RTC_WaitForLastTask();
+        t = calendar.sec;
+        
+        sprintf(tmp, "%02d:%02d:%02d", calendar.hour, calendar.min, calendar.sec);
+        DisplayStr(tmp, 3, 2);
+
+        //sprintf(tmp, "%02d-%02d-%02d %02d:%02d:%02d %02d", calendar.w_year, calendar.w_month, calendar.w_date /
+        //                                                   calendar.hour, calendar.min, calendar.sec, calendar.week);
     }
-    
-    /* Compute  hours */
-    THH = TimeVar / 3600;
-    /* Compute minutes */
-    TMM = (TimeVar % 3600) / 60;
-    /* Compute seconds */
-    TSS = (TimeVar % 3600) % 60;
-    
-    sprintf(tmp, "%02d:%02d:%02d", THH, TMM, TSS);
-    DisplayStr(tmp, 3, 2);
 }
 
 
@@ -594,8 +604,10 @@ static void action_welcome(uint8_t key)
     /* scan card */
     scanCard(UID);
 
-    if (memcmp(UID, "\x00\x00\x00\x00\x00\x00", M_CARD_ID_MAX_LENGTH))
+    if (memcmp(UID, "\x00\x00\x00\x00", M_CARD_ID_MAX_LENGTH))
     {
+        Beep(100);
+    
         isAuthCard(UID);
     }
 
@@ -724,9 +736,12 @@ static void action_room_number(uint8_t key)
         case M_KEY_8:
         case M_KEY_9:
         {
-            roomNum[lenRoomNum++] = key;
+            if (lenRoomNum < M_ROOM_PASSWORD_MAX_LENGTH)
+            {
+                roomNum[lenRoomNum++] = key;
             
-            draw_room_number();
+                draw_room_number();
+            }
         }
             break;
 
@@ -799,16 +814,14 @@ static void draw_room_pw(void)
 
 static void enter_room_pw(uint8_t key)
 {
-    //if (key == 0xFF)
-    //    return;
 
     lenRoomPW= 0;
     memset(roomPW, 0, sizeof(roomPW));
     
-    LcdWcom(0x01);
+    ClearDisplay();
     draw_room_pw();
 
-    bsp_StartTimer(1, 15000, timeout);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_room_pw(uint8_t key)
@@ -844,9 +857,12 @@ static void action_room_pw(uint8_t key)
         case M_KEY_8:
         case M_KEY_9:
         {
-            roomPW[lenRoomPW++] = key;
+            if (lenRoomPW < M_ROOM_PASSWORD_MAX_LENGTH)
+            {
+                roomPW[lenRoomPW++] = key;
             
-            draw_room_pw();
+                draw_room_pw();
+            }
 
         }
             break;
@@ -887,12 +903,13 @@ static void action_room_pw(uint8_t key)
 
 static void draw_room_invalid(void)
 {
-    DisplayStr("无效房间号", 1, 1);
 }
 
 static void enter_room_invalid(uint8_t key)
 {
     ClearDisplay();
+
+    DisplayStr("无效房间号", 1, 1);
 
     switch(roomNumFor)
     {
@@ -913,32 +930,31 @@ static void enter_room_invalid(uint8_t key)
         break;
     }
 
-    bsp_StartTimer(1, menuTab[currentMenu].timeout, timeout);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_room_invalid(uint8_t key)
 {
-    draw_room_invalid();
 }
 
 
 static void draw_room_pw_error(void)
 {
-    DisplayStr("@_@", 0, 3);
-    
-    DisplayStr("密码错误", 2, 2);
+
 }
 
 static void enter_room_pw_error(uint8_t key)
 {
     ClearDisplay();
 
-    bsp_StartTimer(1, 2000, timeout);
+    DisplayStr("@_@", 0, 3);
+    DisplayStr("密码错误", 2, 2);
+
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_room_pw_error(uint8_t key)
 {
-    draw_room_pw_error();
 }
 
 
@@ -949,31 +965,33 @@ static void draw_set_admin_card(void)
     DisplayStr("请刷管理员卡", 1, 1);
     
     sprintf(tmps,"%02X%02X%02X%02X",adminCardID[0],adminCardID[1],adminCardID[2],adminCardID[3]);
-    DisplayStr(tmps,3,0);
+    DisplayStr(tmps,3,2);
 
 }
 
 static void enter_set_admin_card(uint8_t key)
 {
-    LcdWcom(0x01);
+    ClearDisplay();
 
-    bsp_StartTimer(1, 5000, timeout);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_set_admin_card(uint8_t key)
 {    
-    uint8_t UID[5];
-    memset(UID, 0xFF, 5);
+    uint8_t UID[M_CARD_ID_MAX_LENGTH];
+    memset(UID, M_DEFAULT_VALUE, M_CARD_ID_MAX_LENGTH);
 
     draw_set_admin_card();
 
     // scan card
     scanCard(UID);
 
-    if (memcmp(UID, "\xFF\xFF\xFF\xFF\xFF", 5))
+    if (memcmp(UID, "\x00\x00\x00\x00", M_CARD_ID_MAX_LENGTH))
     {
+        Beep(100);
+        
         // update RAM
-        memcpy(adminCardID, UID, 4);
+        memcpy(adminCardID, UID, M_CARD_ID_MAX_LENGTH);
         // update EEPROM
         writeAdminCardIDToFlash(UID);
     }
@@ -987,7 +1005,7 @@ static void draw_admin(void)
 
 static void enter_admin(uint8_t key)
 {
-    LcdWcom(0x01);
+    ClearDisplay();
 
     DisplayStr("设置", 0, 3);
     DisplayStr("1.用户", 1, 0);
@@ -996,41 +1014,36 @@ static void enter_admin(uint8_t key)
     DisplayStr("4.箱门", 2, 5);    
     DisplayStr("0.退出", 3, 0);
 
-    bsp_StartTimer(1, 10000, timeout);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_admin(uint8_t key)
-{    
-    uint8_t tmp = key; 
-    
+{        
     draw_admin();
 
-    translateKey(&tmp, 1);
-
-
-    switch(tmp)
+    switch(key)
     {
-        case '1':
+        case M_KEY_1:
             currentMenu = E_UI_USER_SETTING;
             enter_user_setting(key);
             break;
 
-        case '2':
+        case M_KEY_2:
             currentMenu = E_UI_ADMIN_SETTING;
             enter_admin_setting(key);
             break;
 
-        case '3':
+        case M_KEY_3:
             currentMenu = E_UI_SYSTEM_SETTING;
             enter_system_setting(key);
             break;
 
-        case '4':
+        case M_KEY_4:
             currentMenu = E_UI_BOX_SETTING;
             enter_box_setting(key);
             break;
 
-        case '0':
+        case M_KEY_0:
             currentMenu = E_UI_WELCOME;
             enter_welcome(key);
             break;
@@ -1061,42 +1074,39 @@ static void enter_user_setting(uint8_t key)
     DisplayStr("4.退卡", 2, 5);    
     DisplayStr("0.退出", 3, 0);
 
-    bsp_StartTimer(1, 10000, timeout);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
 static void action_user_setting(uint8_t key)
 {    
-    uint8_t tmp = key; 
     
     draw_user_setting();
 
-    translateKey(&tmp, 1);
-
-    switch(tmp)
+    switch(key)
     {
-        case '1':
+        case M_KEY_1:
             currentMenu = E_UI_USER_SETTING_BOX_PW;
             enter_user_setting_box_pw(key);
             break;
 
-        case '2':
+        case M_KEY_2:
             currentMenu = E_UI_USER_SETTING_BOX_NUM;
             enter_user_setting_box_num(key);
             break;
 
-        case '3':
+        case M_KEY_3:
             roomNumFor = E_FOR_AUTH_CARD;
             currentMenu = E_UI_USER_ROOM_NUM;
             enter_room_number(key);
             break;
 
-        case '4':
+        case M_KEY_4:
             roomNumFor = E_FOR_CLEAR_CARD;
             currentMenu = E_UI_USER_ROOM_NUM;
             enter_room_number(key);
             break;
 
-        case '0':
+        case M_KEY_0:
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
@@ -1128,35 +1138,30 @@ static void enter_admin_setting(uint8_t key)
 }
 
 static void action_admin_setting(uint8_t key)
-{    
-    uint8_t tmp = key; 
-    
+{        
     draw_admin_setting();
 
-    translateKey(&tmp, 1);
-
-    switch(tmp)
+    switch(key)
     {
-        case '1':
+        case M_KEY_1:
             break;
 
-        case '2':
+        case M_KEY_2:
             break;
 
-        case '3':
+        case M_KEY_3:
             break;
 
-        case '4':
+        case M_KEY_4:
             break;
 
-        case '5':
+        case M_KEY_5:
             break;
 
-        case '0':
+        case M_KEY_0:
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
-
 
         default:
             break;
@@ -1393,7 +1398,8 @@ static void action_user_setting_box_pw(uint8_t key)
         }
         else
         {
-            roomPW[lenRoomPW++] = key;
+            if (lenRoomPW < M_ROOM_PASSWORD_MAX_LENGTH)
+                roomPW[lenRoomPW++] = key;
         }
     }
     else if (subState == E_BOX_PW_SUB_PW_AGAIN)
@@ -1420,7 +1426,8 @@ static void action_user_setting_box_pw(uint8_t key)
         }
         else
         {
-            roomPWAgain[lenRoomPWAgain++] = key;
+            if (lenRoomPW < M_ROOM_PASSWORD_MAX_LENGTH)
+                roomPWAgain[lenRoomPWAgain++] = key;
         }
     }
     
@@ -1431,36 +1438,39 @@ static void action_user_setting_box_pw(uint8_t key)
 
 static void draw_user_setting_box_pw_success(void)
 {
-    DisplayStr("设置成功", 1, 2);
 }
 
 static void enter_user_setting_box_pw_success(uint8_t key)
 {    
-    LcdWcom(0x01);
+    ClearDisplay();
+    
+    DisplayStr("设置成功", 1, 2);
+    
     bsp_StartTimer(1, 3000, timeout);
 }
 
 static void action_user_setting_box_pw_success(uint8_t key)
 {
-    draw_user_setting_box_pw_success();
 }
 
 
 static void draw_user_setting_box_pw_failed(void)
 {
-    DisplayStr("两次密码不一致", 1, 1);
-    DisplayStr("设置失败", 2, 2);
+
 }
 
 static void enter_user_setting_box_pw_failed(uint8_t key)
 {    
     ClearDisplay();
+
+    DisplayStr("两次密码不一致", 1, 1);
+    DisplayStr("设置失败", 2, 2);
+    
     bsp_StartTimer(1, 3000, timeout);
 }
 
 static void action_user_setting_box_pw_failed(uint8_t key)
 {
-    draw_user_setting_box_pw_failed();
 }
 
 
@@ -1471,8 +1481,6 @@ static void draw_user_setting_card_auth(void)
     cnt++;
     cnt %= 40;
 
-    
-    
     
     if (!(cnt / 30) )
     {
@@ -1502,6 +1510,8 @@ static void action_user_setting_card_auth(uint8_t key)
 
     if (memcmp(UID, "\xFF\xFF\xFF\xFF", M_CARD_ID_MAX_LENGTH))
     {
+        Beep(100);
+    
         memcpy(cardIDToAuth, UID, M_CARD_ID_MAX_LENGTH);
 
         currentMenu = E_UI_SURE_TO_AUTH_CARD;
@@ -1642,9 +1652,12 @@ static void action_user_setting_box_num(uint8_t key)
         case M_KEY_8:
         case M_KEY_9:
         {
-            roomNum[lenRoomNum++] = key;
+            if (lenRoomNum < 3)
+            {
+                roomNum[lenRoomNum++] = key;
             
-            draw_user_setting_box_num();
+                draw_user_setting_box_num();
+            }
         }
             break;
 
@@ -1862,6 +1875,8 @@ void menu_handle(uint8_t key)
 {
     /* Soft timer 1 used for menu only */
     bsp_CheckTimer(M_SOFT_TIMER_FOR_MENU);
+    /* Soft timer 2 used for beep only */
+    bsp_CheckTimer(M_SOFT_TIMER_FOR_BEEP);
 
     /* Menu display and react to the key pressed */
     if (menuTab[currentMenu].menu_action != 0)

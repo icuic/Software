@@ -48,17 +48,12 @@ uint8_t SetRoomPassword(uint8_t index, uint8_t* data)
 
 uint8_t SetRoomCardID(uint8_t index, uint8_t* data)
 {
-    uint8_t i = 0, j = 0, len = 0;
-
-    while( *(data + len) != 0xFF)
-    {
-        len ++;
-    }
+    uint8_t i = 0, j = 0;
 
     /* if existed */
     for (i = 0; i < M_ROOM_MAX_USER; i++)
     {
-        if (memcmp(roomInfo[index].cardID[i], data, len) == 0)
+        if (memcmp(roomInfo[index].cardID[i], data, M_CARD_ID_MAX_LENGTH) == 0)
         {
             return 0xFF;
         }
