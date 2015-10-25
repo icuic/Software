@@ -347,6 +347,7 @@ typedef enum
 }eMenuEnterFor;
 
 static eBoxPwSubState subState = E_BOX_PW_SUB_ROOM;   
+static uint8_t subflag = 0;     // 控制提示信息的显示
 
 
 static volatile eUIIndex currentMenu = E_UI_WELCOME;
@@ -1298,17 +1299,15 @@ static void action_box_setting(uint8_t key)
 }
 
 
-
 static void draw_user_setting_box_pw(void)
 {
     uint8_t j = 0;
-    static uint8_t u08flag = 0;
 
     if (subState == E_BOX_PW_SUB_ROOM)
     {
-        if ((u08flag & 0x01) == 0)
+        if ((subflag & 0x01) == 0)
         {
-            u08flag |= 0x01;
+            subflag |= 0x01;
             DisplayStr("请输入房间号", 0, 1);
         }
 
@@ -1318,9 +1317,9 @@ static void draw_user_setting_box_pw(void)
     }
     else if (subState == E_BOX_PW_SUB_PW)
     {  
-        if ((u08flag & 0x02) == 0)
+        if ((subflag & 0x02) == 0)
         {
-            u08flag |= 0x02;
+            subflag |= 0x02;
             DisplayStr("请输入密码", 2, 1);
         }    
         
@@ -1330,9 +1329,9 @@ static void draw_user_setting_box_pw(void)
     }
     else if (subState == E_BOX_PW_SUB_PW_AGAIN)
     {    
-        if ((u08flag & 0x04) == 0)
+        if ((subflag & 0x04) == 0)
         {
-            u08flag |= 0x04;
+            subflag |= 0x04;
             DisplayStr("请再次输入密码", 2, 1);
         }  
         
@@ -1354,6 +1353,8 @@ static void enter_user_setting_box_pw(uint8_t key)
 {
     if (key != M_KEY_1)
         return;
+
+    subflag = 0;
 
     subState = E_BOX_PW_SUB_ROOM; 
 
