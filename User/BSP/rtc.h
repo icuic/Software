@@ -20,4 +20,6 @@ extern calendar_obj calendar;   //日历结构体
 void rtcInit(void);
 u8 RTC_Get();
 
+bool RTC_Valid(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);
+
 #endif

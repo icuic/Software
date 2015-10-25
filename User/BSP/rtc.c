@@ -277,3 +277,37 @@ void rtcInit(void)
     RTC_Get();//更新时间 
   }
 }
+
+bool RTC_Valid(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
+{
+    if(syear<1970||syear>2099)
+        return 1;
+
+    if (smon > 12)
+        return 1;
+
+    if (Is_Leap_Year(syear) == 1)   // Leap year
+    {
+        if (smon == 2 && sday > 29)
+            return 1;
+    }
+    else
+    {
+        if (smon == 2 && sday > 28)
+            return 1;
+    }
+
+    if (smon == 4 || smon == 6 || smon == 9 || smon == 11)
+    {
+        if (sday > 30)
+            return 1;
+    }
+    else
+    {
+        if (sday > 31)
+            return 1;
+    }
+
+    if (hour > 23 || min > 60 || sec > 60)
+        return 1;
+}

@@ -37,6 +37,8 @@ typedef enum
 
     E_UI_SURE_TO_AUTH_CARD,
 
+    E_UI_ADMIN_SETTING_CLOCK,       // …Ë÷√ ±÷”
+
     E_UI_MAX
 }eUIIndex;
 

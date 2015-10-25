@@ -16,6 +16,8 @@
 
 #define M_DEFAULT_VALUE         0
 
+#define M_MAX_CLOCK_LEN         12
+
 extern void DisplayStr(u8 *str,u8 x,u8 y);
 extern void DisplayKey(u8 keyvalue, u8 x, u8 y);
 
@@ -116,6 +118,11 @@ static void action_tips(uint8_t key);
 static void draw_sure_to_auth_card(void);
 static void enter_sure_to_auth_card(uint8_t key);
 static void action_sure_to_auth_card(uint8_t key);
+
+static void draw_set_clock(void);
+static void enter_set_clock(uint8_t key);
+static void action_set_clock(uint8_t key);
+
 
 static UIStruct menuTab[E_UI_MAX] = 
 {
@@ -298,6 +305,15 @@ static UIStruct menuTab[E_UI_MAX] =
     enter_sure_to_auth_card,
     action_sure_to_auth_card,
     },
+
+    {
+    E_UI_ADMIN_SETTING_CLOCK,
+    E_UI_ADMIN_SETTING,
+    20 * M_1_SECOND, 
+    draw_set_clock,
+    enter_set_clock,
+    action_set_clock,
+    },
 };
 
 typedef enum
@@ -309,6 +325,8 @@ typedef enum
     E_TIPS_TYPE_CARD_AUTH_SUCCESS,          // 卡片绑定成功
     E_TIPS_TYPE_CARD_DISAUTH_SUCCESS,       // 退卡成功
     E_TIPS_TYPE_CARD_INVALID,               // 无效卡
+    E_TIPS_TYPE_CLOCK_SET_SUCCESS,          // 时间设置成功
+    E_TIPS_TYPE_CLOCK_INVALID,              // 时间无效
     E_TIPS_TYPE_END
 }eTipsType;
 
@@ -364,6 +382,9 @@ static uint8_t roomPWAgain[M_ROOM_PASSWORD_MAX_LENGTH]; // Room password
 static uint8_t tmpIndex = 0;                            // 
 
 static uint8_t matchedIndex = 0xFF;                     // 
+
+static uint8_t lenClock = 0;
+static uint8_t newClock[M_MAX_CLOCK_LEN];
 
 static void timeout()
 {
@@ -1147,6 +1168,8 @@ static void action_admin_setting(uint8_t key)
             break;
 
         case M_KEY_2:
+            currentMenu = E_UI_ADMIN_SETTING_CLOCK;
+            enter_set_clock(key);
             break;
 
         case M_KEY_3:
@@ -1771,6 +1794,14 @@ static void draw_tips(void)
         case E_TIPS_TYPE_CARD_AUTH_SUCCESS:
         break;
 
+        case E_TIPS_TYPE_CLOCK_SET_SUCCESS:
+            DisplayStr("时间设置成功", 1, 1);
+        break;
+
+        case E_TIPS_TYPE_CLOCK_INVALID:
+            DisplayStr("无效时间", 1, 2);
+        break;
+
         default:
         break;        
     }
@@ -1808,6 +1839,14 @@ static void enter_tips(uint8_t key)
         case E_TIPS_TYPE_CARD_AUTH_SUCCESS:
             menuTab[currentMenu].parent = E_UI_USER_SETTING_CARD_AUTH;
             DisplayStr("绑定成功", 1, 2);
+        break;
+
+        case E_TIPS_TYPE_CLOCK_SET_SUCCESS:
+            menuTab[currentMenu].parent = E_UI_ADMIN_SETTING;
+        break;
+
+        case E_TIPS_TYPE_CLOCK_INVALID:
+            menuTab[currentMenu].parent = E_UI_ADMIN_SETTING_CLOCK;
         break;
 
         default:
@@ -1869,6 +1908,124 @@ static void action_sure_to_auth_card(uint8_t key)
     }
 }
 
+
+static void draw_set_clock(void)
+{
+    uint8_t j = 0;
+
+    DisplayStr("时间设置", 0, 2);
+
+    SetCursor(2,1);
+    for(j = 0; j < lenClock; j++)
+        DisplayRoomNumber(newClock[j]);
+}
+static void enter_set_clock(uint8_t key)
+{
+    lenClock = 0;
+    memset(newClock, 0, M_MAX_CLOCK_LEN);
+    
+    ClearDisplay();
+
+    DisplayStr("时间设置", 0, 2);
+    
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
+}
+
+static bool valid_clock(uint8_t *dateTime, uint8_t len)
+{
+    uint16_t year  = 2000;
+    uint8_t  month = 0, day = 0, hour = 0, minute = 0, second = 0;
+
+    if (len != M_MAX_CLOCK_LEN)
+        return 1;
+    
+    year  += (dateTime[0] - '0') * 10;
+    year  += (dateTime[1] - '0');
+
+    month  = (dateTime[2] - '0') * 10;
+    month += (dateTime[3] - '0');
+
+    day    = (dateTime[4] - '0') * 10;
+    day   += (dateTime[5] - '0');
+
+    hour   = (dateTime[6] - '0') * 10;
+    hour  += (dateTime[7] - '0');
+
+    minute = (dateTime[8] - '0') * 10;
+    minute+= (dateTime[9] - '0');
+
+    second = (dateTime[10] - '0') * 10;
+    second+= (dateTime[11] - '0');
+
+    if (RTC_Valid(year, month, day, hour, minute, second))
+    {
+        return 1;
+    }
+    else
+    {
+        return RTC_Set(year, month, day, hour, minute, second);
+    }
+}
+
+static void action_set_clock(uint8_t key)
+{
+    switch(key)
+    {
+        case M_KEY_ESC:     /* Delete a number */
+        {
+            if (lenClock > 0)
+            {
+                lenClock--;
+                newClock[lenClock] = 0;
+            }
+
+            ClearDisplay();
+            draw_set_clock();
+        }
+            break;
+
+        case M_KEY_0:
+        case M_KEY_1:
+        case M_KEY_2:
+        case M_KEY_3:
+        case M_KEY_4:
+        case M_KEY_5:
+        case M_KEY_6:
+        case M_KEY_7:
+        case M_KEY_8:
+        case M_KEY_9:
+        {
+            if (lenClock < M_MAX_CLOCK_LEN)
+            {
+                newClock[lenClock++] = key;
+            
+                draw_set_clock();
+            }
+        }
+            break;
+
+        case M_KEY_OK:
+        {
+            translateKey(newClock, lenClock);
+
+            if (valid_clock(newClock, lenClock))  // not valid
+            {
+                tipsType = E_TIPS_TYPE_CLOCK_INVALID;
+            }
+            else
+            {
+                tipsType = E_TIPS_TYPE_CLOCK_SET_SUCCESS;
+            }
+
+            currentMenu = E_UI_TIPS;
+            enter_tips(key);
+        }
+            break;
+
+        default:
+            break;   
+    }
+}
 
 
 void menu_handle(uint8_t key)
