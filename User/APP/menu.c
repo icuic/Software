@@ -430,6 +430,21 @@ static void timeout()
     }
 }
 
+static void exitByESC(void)
+{
+    timeOutCnt = 0;
+    
+    /* Go back to parent menu once timeout */
+    currentMenu = menuTab[currentMenu].parent;
+    
+    /* Clear LCD display */
+    ClearDisplay();
+    
+    /* Init parameters for next menu's display */
+    menuTab[currentMenu].menu_enter(M_KEY_NO_KEY);
+
+}
+
 static void openBoxInOrder()
 {
 
@@ -754,6 +769,11 @@ static void action_room_number(uint8_t key)
                 lenRoomNum--;
                 roomNum[lenRoomNum] = 0;
             }
+            else
+            {
+                exitByESC();
+                return;
+            }
 
             ClearDisplay();
             draw_room_number();
@@ -886,6 +906,11 @@ static void action_room_pw(uint8_t key)
             {
                 lenRoomPW--;
                 roomPW[lenRoomPW] = 0;
+            }
+            else
+            {
+                exitByESC();
+                return;
             }
 
             ClearDisplay();
@@ -1104,6 +1129,7 @@ static void action_admin(uint8_t key)
             break;
 
         case M_KEY_0:
+        case M_KEY_ESC:
             currentMenu = E_UI_WELCOME;
             enter_welcome(key);
             break;
@@ -1167,6 +1193,7 @@ static void action_user_setting(uint8_t key)
             break;
 
         case M_KEY_0:
+        case M_KEY_ESC: 
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
@@ -1221,6 +1248,7 @@ static void action_admin_setting(uint8_t key)
             break;
 
         case M_KEY_0:
+        case M_KEY_ESC:
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
@@ -1273,6 +1301,7 @@ static void action_system_setting(uint8_t key)
             break;
 
         case M_KEY_0:
+        case M_KEY_ESC:
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
@@ -1320,6 +1349,7 @@ static void action_box_setting(uint8_t key)
             break;
 
         case M_KEY_0:
+        case M_KEY_ESC:
             currentMenu = E_UI_ADMIN;
             enter_admin(key);
             break;
@@ -1437,9 +1467,27 @@ static void action_user_setting_box_pw(uint8_t key)
             }
 
         }
+        else if (key == M_KEY_ESC)   /* Delete a number */
+        {
+            if (lenRoomNum > 0)
+            {
+                lenRoomNum--;
+                roomNum[lenRoomNum] = 0;
+
+                subflag &= ~0x01;
+            }
+            else
+            {
+                exitByESC();
+                return;
+            }
+
+            ClearDisplay();
+        }
         else
         {
-            roomNum[lenRoomNum++] = key;
+            if (lenRoomNum < M_MAX_BOX_NUM_USED)
+                roomNum[lenRoomNum++] = key;
         }
     }
     else if (subState == E_BOX_PW_SUB_PW)
@@ -1573,6 +1621,12 @@ static void action_user_setting_card_auth(uint8_t key)
         enter_sure_to_auth_card(key);
         
     }
+
+    if (key ==M_KEY_ESC)     /* exit */
+    {
+        exitByESC();
+    }
+
 }
 
 
@@ -1722,6 +1776,10 @@ static void action_user_setting_box_num(uint8_t key)
             {
                 lenRoomNum--;
                 roomNum[lenRoomNum] = 0;
+            }
+            else        /* exit */
+            {
+                exitByESC();
             }
 
             ClearDisplay();
@@ -1905,7 +1963,7 @@ static void enter_tips(uint8_t key)
 }
 
 static void action_tips(uint8_t key)
-{
+{  
     draw_tips();
 }
 
@@ -2025,6 +2083,11 @@ static void action_set_clock(uint8_t key)
             {
                 lenClock--;
                 newClock[lenClock] = 0;
+            }
+            else
+            {
+                exitByESC();
+                return;
             }
 
             ClearDisplay();
