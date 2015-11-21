@@ -123,17 +123,12 @@ void TIM3_IRQHandler(void)
     {
         TIM_ClearITPendingBit( TIM3, TIM_IT_Update);
 
-#if 1
         for(i=0;i<IRQHANDLENUM;i++)
         {
             if (IRQHandler[i] != NULL)
-                (*IRQHandler[i])();
+                (*IRQHandler[i])();			//ÖÐ¶Ïº¯Êý
         }
-#endif    
     }
-
-        //aaa++;
-        //aaa %= 255;
 }
 
 

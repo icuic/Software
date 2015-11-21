@@ -38,8 +38,8 @@ void RCC_Configuration(void)
         /* PCLK1 = HCLK */
         RCC_PCLK1Config(RCC_HCLK_Div1);
 
-        /* PLLCLK = 4MHz * 6 = 24 MHz */
-        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_4);
+        /* PLLCLK = 12MHz * 2 = 24 MHz */
+        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_2);
         /* Enable PLL */ 
         RCC_PLLCmd(ENABLE);
         
@@ -81,6 +81,9 @@ void GPIO_Configuration(void)
     
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
                      RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD,DISABLE);
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
     
 }
 

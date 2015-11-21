@@ -1,7 +1,7 @@
 #include "InOutcontrol.h"
 #include "core_cmInstr.h"
 
-#define SPI_ID  SPI1
+#define SPI_ID  SPI2
 
 
 void InOutControlInit(void)
@@ -13,20 +13,22 @@ void InOutControlInit(void)
     //init spi1 port 
     SPI_InitTypeDef  SPI_InitStructure;
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_SPI1, ENABLE);
-    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
 
-    //SCK,MOSI,LSCK,RST
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
+    //SCK,MOSI
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_13 | GPIO_Pin_15 ;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA,&GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_3 | GPIO_Pin_4 ;
+    GPIO_Init(GPIOB,&GPIO_InitStructure);
+    
+    //LSCK,RST
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10 | GPIO_Pin_11 ;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-    GPIO_Init(GPIOA,&GPIO_InitStructure);
+    GPIO_Init(GPIOB,&GPIO_InitStructure);
 
-	GPIO_ResetBits(GPIOA,GPIO_Pin_4);    
+    //OUTEN
+    GPIO_ResetBits(GPIOB,GPIO_Pin_11);    
 
     SPI_Cmd(SPI_ID, DISABLE);            
     SPI_InitStructure.SPI_Direction =SPI_Direction_2Lines_FullDuplex; 
@@ -43,20 +45,20 @@ void InOutControlInit(void)
      SPI_Cmd(SPI_ID, ENABLE);
 
      //rst
-     GPIO_ResetBits(GPIOA,GPIO_Pin_3);
+     GPIO_ResetBits(GPIOB,GPIO_Pin_10);
      for(i = 0;i<1024;i++)
      {
         __NOP();
      }
 
-     GPIO_SetBits(GPIOA,GPIO_Pin_3);
+     GPIO_SetBits(GPIOB,GPIO_Pin_10);
 
-     GPIO_SetBits(GPIOA,GPIO_Pin_4);
-	for(i = 0;i<1024;i++)
+     GPIO_SetBits(GPIOB,GPIO_Pin_11);
+    for(i = 0;i<1024;i++)
     {
         __NOP();
     }
-    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+    GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 }
 
 u8 SPIByte(u8 byte)
@@ -78,16 +80,59 @@ while((SPI_I2S_GetFlagStatus(SPI_ID,SPI_I2S_FLAG_RXNE))==RESET);
  //SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_RXNE) ;
 }
 
-
-void OpenLock(u16 LockId)
+#if 0
+void OpenLock(u8 * LockId,u8 Numer)
 {
     u32 i;
 
-    SPIByte(LockId>>8);
-    SPIByte(LockId);
+    for(i = 0;i<Numer;i++)
+    {
+        SPIByte(LockId[i]);
+    }
+    //SPIByte(LockId>>8);
+    //SPIByte(LockId);
     __NOP();
-    GPIO_SetBits(GPIOA,GPIO_Pin_4);
+    GPIO_SetBits(GPIOB,GPIO_Pin_11);
+    // for(i = 0;i<1000;i++)
+     {
     __NOP();
-    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+     }
+    
+    GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+}
+#endif
+
+void OpenLock(u8 LockId, u8 Numer)
+{
+    u8 u8Remainder = LockId % 8;
+    u8 u8Quotient = LockId / 8;
+    u8 u8loop = Numer / 8;
+    u8 i;
+
+    if (LockId == 0xff)
+    {
+        u8Quotient = 0xff;
+    }
+
+    for(i = u8loop; i > 0; i--)
+    {
+       if (i == u8Quotient+1)
+       {
+            SPIByte(1<<u8Remainder);
+       }
+       else
+       {
+            SPIByte(0);
+       }
+    }
+
+    __NOP();
+    GPIO_SetBits(GPIOB,GPIO_Pin_11);
+    // for(i = 0;i<1000;i++)
+     {
+    __NOP();
+     }
+    
+    GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 }
 

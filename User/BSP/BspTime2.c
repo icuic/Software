@@ -84,14 +84,11 @@ void TIM2_IRQHandler(void)
     if( SET == TIM_GetITStatus(TIM2,TIM_IT_Update) )
     {
         TIM_ClearITPendingBit( TIM2, TIM_IT_Update);
-#if 1
+
         for (i = 0; i < (u16)eTimMax; i++)
         {
             g_Tim2Array[i]++;
         }
-#endif
-
-        //key_detect();
     }
 }
 

@@ -7,8 +7,8 @@
 ***********************************************************************************/
 #include "w25qxx.h"
  
-#define Flash_CS_Low    GPIO_ResetBits(GPIOA, GPIO_Pin_11)
-#define Flash_CS_High   GPIO_SetBits(GPIOA, GPIO_Pin_11)
+#define Flash_CS_Low    GPIO_ResetBits(GPIOA, GPIO_Pin_4)
+#define Flash_CS_High   GPIO_SetBits(GPIOA, GPIO_Pin_4)
  
 /*---------------------------------------------------------------------------------
 * Function Name  : Flash_Init
@@ -28,7 +28,7 @@ void Flash_Init(void)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
      
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11; //CS
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4; //CS
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -106,13 +106,13 @@ void Flash_WaitWriteEnd(void)
 *---------------------------------------------------------------------------------*/
 u8 Flash_SendByte(u8 byte)
 {
-    while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET); //Loop while DR register in not emplty 
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET); //Loop while DR register in not emplty 
 
-    SPI_I2S_SendData(SPI2, byte);
+    SPI_I2S_SendData(SPI1, byte);
 
-    while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET); //wait for receiving data
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET); //wait for receiving data
 
-    return SPI_I2S_ReceiveData(SPI2);
+    return SPI_I2S_ReceiveData(SPI1);
 }
  
 /*---------------------------------------------------------------------------------

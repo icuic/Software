@@ -112,7 +112,7 @@ int main(void)
         {
             if(IS_TIMEOUT_1MS(LockPlus,50))
             {
-                OpenLock(0x0000);
+                OpenLock(0xFF, M_MAX_BOX);
                 lockStat = 0;
             }
         }

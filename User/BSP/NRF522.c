@@ -1,9 +1,9 @@
 #include "NRF522.H"
 
-#define NSS522_1 GPIO_SetBits(GPIOB,GPIO_Pin_12)
-#define NSS522_0 GPIO_ResetBits(GPIOB,GPIO_Pin_12)
-#define RST522_1 GPIO_SetBits(GPIOA,GPIO_Pin_8)
-#define RST522_0 GPIO_ResetBits(GPIOA,GPIO_Pin_8)
+#define NSS522_1 GPIO_SetBits(GPIOA,GPIO_Pin_1)
+#define NSS522_0 GPIO_ResetBits(GPIOA,GPIO_Pin_1)
+#define RST522_1 GPIO_SetBits(GPIOB,GPIO_Pin_5)
+#define RST522_0 GPIO_ResetBits(GPIOB,GPIO_Pin_5)
 
 extern void InitSPIcommon(void);
 void InitNRF522Pin(void);
@@ -22,10 +22,10 @@ u8 SpiWriteRead(u8 datav)
     u8 keyvalue;
     
     //Read value
-    while((SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_TXE))==RESET);
-    SPI_I2S_SendData(SPI2,datav);
-    while((SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_RXNE))==RESET);
-    keyvalue = SPI_I2S_ReceiveData(SPI2);
+    while((SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE))==RESET);
+    SPI_I2S_SendData(SPI1,datav);
+    while((SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE))==RESET);
+    keyvalue = SPI_I2S_ReceiveData(SPI1);
 	return keyvalue;
 }
 
@@ -40,18 +40,20 @@ void InitNRF522Pin(void)
     //init io
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);
 
     //NCS
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_1;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOB,&GPIO_InitStructure);
+    GPIO_Init(GPIOA,&GPIO_InitStructure);
+    NSS522_1;
 
     //RST
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
-    GPIO_Init(GPIOA,&GPIO_InitStructure);
-
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5;
+    GPIO_Init(GPIOB,&GPIO_InitStructure);
+    RST522_1;
+        
     InitSPIcommon();
 }
 

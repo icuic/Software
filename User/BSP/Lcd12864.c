@@ -1,13 +1,13 @@
 #include "Lcd12864.h"
 
-#define RS_ON      GPIO_SetBits(GPIOA,GPIO_Pin_0);
-#define RS_OFF     GPIO_ResetBits(GPIOA,GPIO_Pin_0);
-#define RW_ON      GPIO_SetBits(GPIOA,GPIO_Pin_1);
-#define RW_OFF     GPIO_ResetBits(GPIOA,GPIO_Pin_1);
-#define E_ON       GPIO_SetBits(GPIOA,GPIO_Pin_2);
-#define E_OFF      GPIO_ResetBits(GPIOA,GPIO_Pin_2);
-#define RST_ON     GPIO_SetBits(GPIOB,GPIO_Pin_11);
-#define RST_OFF    GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+#define RS_ON      GPIO_SetBits(GPIOB,GPIO_Pin_12);
+#define RS_OFF     GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+#define RW_ON      GPIO_SetBits(GPIOB,GPIO_Pin_9);
+#define RW_OFF     GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+#define E_ON       GPIO_SetBits(GPIOB,GPIO_Pin_8);
+#define E_OFF      GPIO_ResetBits(GPIOB,GPIO_Pin_8);
+#define RST_ON     GPIO_SetBits(GPIOA,GPIO_Pin_9);
+#define RST_OFF    GPIO_ResetBits(GPIOA,GPIO_Pin_9);
 
 const unsigned char hohai[] =   
 {  
@@ -148,71 +148,33 @@ void InitLcd(void)
     //RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
 
     //RS,RW,E
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12 | GPIO_Pin_9 | GPIO_Pin_8;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA,&GPIO_InitStructure);
-    //RST    
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11;
     GPIO_Init(GPIOB,&GPIO_InitStructure);
+    //RST    
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
+    GPIO_Init(GPIOA,&GPIO_InitStructure);
     //DATA
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_5
-                                    |GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8
-                                    |GPIO_Pin_9 | GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_6| GPIO_Pin_7;
     
-	GPIO_Init(GPIOB,&GPIO_InitStructure);  
+    GPIO_Init(GPIOB,&GPIO_InitStructure);  
+
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 |GPIO_Pin_15;
+    
+    GPIO_Init(GPIOA,&GPIO_InitStructure); 
 
     //bk
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOB,&GPIO_InitStructure);
-    GPIO_SetBits(GPIOB,GPIO_Pin_3);
+    GPIO_Init(GPIOA,&GPIO_InitStructure);
+    GPIO_SetBits(GPIOA,GPIO_Pin_8);
 }
 
 void BuildData(u8 dataVal)
 {
     //d0
     if(dataVal & 0x01)
-    {
-        GPIO_SetBits(GPIOB,GPIO_Pin_0);
-    }
-    else
-    {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_0);
-    }
-
-    //d1
-    if(dataVal & 0x02)
-    {
-        GPIO_SetBits(GPIOB,GPIO_Pin_1);
-    }
-    else
-    {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_1);
-    }
-
-    //d2
-    if(dataVal & 0x04)
-    {
-        GPIO_SetBits(GPIOB,GPIO_Pin_5);
-    }
-    else
-    {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_5);
-    }
-
-    //d3
-    if(dataVal & 0x08)
-    {
-        GPIO_SetBits(GPIOB,GPIO_Pin_6);
-    }
-    else
-    {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_6);
-    }
-
-    //d4
-    if(dataVal & 0x10)
     {
         GPIO_SetBits(GPIOB,GPIO_Pin_7);
     }
@@ -221,34 +183,74 @@ void BuildData(u8 dataVal)
         GPIO_ResetBits(GPIOB,GPIO_Pin_7);
     }
 
-    //d5
-    if(dataVal & 0x20)
+    //d1
+    if(dataVal & 0x02)
     {
-        GPIO_SetBits(GPIOB,GPIO_Pin_8);
+        GPIO_SetBits(GPIOB,GPIO_Pin_6);
     }
     else
     {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_8);
+        GPIO_ResetBits(GPIOB,GPIO_Pin_6);
+    }
+
+    //d2
+    if(dataVal & 0x04)
+    {
+        GPIO_SetBits(GPIOB,GPIO_Pin_4);
+    }
+    else
+    {
+        GPIO_ResetBits(GPIOB,GPIO_Pin_4);
+    }
+
+    //d3
+    if(dataVal & 0x08)
+    {
+        GPIO_SetBits(GPIOB,GPIO_Pin_3);
+    }
+    else
+    {
+        GPIO_ResetBits(GPIOB,GPIO_Pin_3);
+    }
+
+    //d4
+    if(dataVal & 0x10)
+    {
+        GPIO_SetBits(GPIOA,GPIO_Pin_15);
+    }
+    else
+    {
+        GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+    }
+
+    //d5
+    if(dataVal & 0x20)
+    {
+        GPIO_SetBits(GPIOA,GPIO_Pin_12);
+    }
+    else
+    {
+        GPIO_ResetBits(GPIOA,GPIO_Pin_12);
     }
 
     //d6
     if(dataVal & 0x40)
     {
-        GPIO_SetBits(GPIOB,GPIO_Pin_9);
+        GPIO_SetBits(GPIOA,GPIO_Pin_11);
     }
     else
     {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_11);
     }
 
     //d7
     if(dataVal & 0x80)
     {
-        GPIO_SetBits(GPIOB,GPIO_Pin_10);
+        GPIO_SetBits(GPIOA,GPIO_Pin_10);
     }
     else
     {
-        GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_10);
     }
 
 }

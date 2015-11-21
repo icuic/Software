@@ -343,6 +343,7 @@ typedef enum
     E_FOR_OPEN_BOX = 0,     // 密码开箱
     E_FOR_AUTH_CARD,        // 绑定卡片
     E_FOR_CLEAR_CARD,       // 解除绑定卡片
+    E_FOR_FORCE_OPEN_BOX,   // 强制开箱
     E_FOR_END
 }eMenuEnterFor;
 
@@ -803,6 +804,12 @@ static void action_room_number(uint8_t key)
                         currentMenu = E_UI_USER_SETTING_CARD_CLEAR;
                         enter_user_setting_card_clear(key);
                     }
+                    else if (roomNumFor == E_FOR_FORCE_OPEN_BOX)
+                    {
+                        roomNumFor = E_FOR_OPEN_BOX;
+                        currentMenu = E_UI_BOX_SETTING;
+                        enter_user_setting_card_clear(key);    
+                    }
                     
                 }
                 else                                                    /* It's a invalid room number */
@@ -945,6 +952,12 @@ static void enter_room_invalid(uint8_t key)
         case E_FOR_CLEAR_CARD:
         {
             menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
+        }
+        break;
+
+        case E_FOR_FORCE_OPEN_BOX:
+        {
+            menuTab[E_UI_ROOM_INVALID].parent = E_UI_BOX_SETTING;
         }
         break;
 
@@ -1274,6 +1287,9 @@ static void action_box_setting(uint8_t key)
     switch(key)
     {
         case M_KEY_1:
+            roomNumFor = E_FOR_FORCE_OPEN_BOX;
+            currentMenu = E_UI_BOX_SETTING;
+            enter_room_number(key);            
             break;
 
         case M_KEY_2:

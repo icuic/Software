@@ -88,20 +88,20 @@ void InitSPIcommon(void)
     //init spi1 port 
     SPI_InitTypeDef  SPI_InitStructure;
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_SPI1, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
 
     //SCK,MOSI,
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_15 | GPIO_Pin_13;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5 | GPIO_Pin_7;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOB,&GPIO_InitStructure);
+    GPIO_Init(GPIOA,&GPIO_InitStructure);
     //MISO
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_14;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_Init(GPIOB,&GPIO_InitStructure);
+    GPIO_Init(GPIOA,&GPIO_InitStructure);
 
-    SPI_Cmd(SPI2, DISABLE);            
+    SPI_Cmd(SPI1, DISABLE);            
     SPI_InitStructure.SPI_Direction =SPI_Direction_2Lines_FullDuplex; 
     SPI_InitStructure.SPI_Mode =SPI_Mode_Master;       
     SPI_InitStructure.SPI_DataSize =SPI_DataSize_8b;      
@@ -112,8 +112,8 @@ void InitSPIcommon(void)
     SPI_InitStructure.SPI_FirstBit =SPI_FirstBit_MSB;      //????
     SPI_InitStructure.SPI_CRCPolynomial =7;        //CRC7
        
-     SPI_Init(SPI2,&SPI_InitStructure);
-     SPI_Cmd(SPI2, ENABLE);
+     SPI_Init(SPI1,&SPI_InitStructure);
+     SPI_Cmd(SPI1, ENABLE);
 }
 uint8_t key_detect(void);
 void InitKey(void)
@@ -125,10 +125,10 @@ void InitKey(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
     //CE,LK
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_15 | GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_1 | GPIO_Pin_0;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA,&GPIO_InitStructure);
+    GPIO_Init(GPIOB,&GPIO_InitStructure);
 
     InitSPIcommon();
     //register process function
@@ -143,28 +143,28 @@ u8 scankey(void)  //只处理一个键按下情况
     u8 keyvalue;
     
     //select key
-    GPIO_ResetBits(GPIOA,GPIO_Pin_12);
+    GPIO_ResetBits(GPIOB,GPIO_Pin_1);
     __NOP();
     __NOP();
     __NOP();
     //lock input
-    GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+    GPIO_ResetBits(GPIOB,GPIO_Pin_0);
     __NOP();
     __NOP();
     __NOP();
     __NOP();
     __NOP();
     __NOP();
-    GPIO_SetBits(GPIOA,GPIO_Pin_15);
+    GPIO_SetBits(GPIOB,GPIO_Pin_0);
     
     //Read value
-    while((SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_TXE))==RESET);
-    SPI_I2S_SendData(SPI2,0x00);
-    while((SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_RXNE))==RESET);
+    while((SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE))==RESET);
+    SPI_I2S_SendData(SPI1,0x00);
+    while((SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE))==RESET);
 
-    keyvalue = SPI_I2S_ReceiveData(SPI2);
+    keyvalue = SPI_I2S_ReceiveData(SPI1);
 
-    GPIO_SetBits(GPIOA,GPIO_Pin_12);
+    GPIO_SetBits(GPIOB,GPIO_Pin_1);
 
     return keyvalue;
     
