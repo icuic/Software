@@ -79,8 +79,6 @@ void DisplayStr(u8 *str,u8 x,u8 y)
 int main(void)
 {
     extern u8 lockStat;
-
-    uint8_t u08Key;
     
     BspInit();
 

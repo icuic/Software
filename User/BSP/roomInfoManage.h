@@ -48,5 +48,10 @@ void clearCard(uint8_t roomIndex);
 
 void saveRoomInfo(uint8_t index);
 void recoverRoomInfoFromFlash(void);
+void recoverAdminCardIDFromFlash(void);
+
+uint8_t matchCardID(uint8_t* uid);
+void writeAdminCardIDToFlash(uint8_t* cardID);
+
 
 #endif

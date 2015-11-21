@@ -225,7 +225,6 @@ extern u8 flagSPI2;
 
 uint8_t key_detect(void)
 {
-    static uint8_t lastKey = KEY_NONE;
     uint8_t ucKey;  
     
     ucKey = scankey();             //读取I/O口的按键值
@@ -266,8 +265,6 @@ uint8_t key_detect(void)
             }
             ClearKeyFlag();
         }
-
-        lastKey = KEY_NONE;
     }
 
     KeyCode = KEY_NONE;

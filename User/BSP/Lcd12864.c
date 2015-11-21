@@ -374,7 +374,7 @@ void tupian(unsigned char *p) //图片数据提取函数
 void DisplayCustomChar(unsigned char row, unsigned char column, unsigned char *pData, unsigned char num)
 {
     unsigned char x_start = 0x80, y_start = 0x80;
-    unsigned char i = 0, j = 0, len = 0;
+    unsigned char i = 0, j = 0;
 
     LcdWcom(0x34); //关闭绘图功能
     

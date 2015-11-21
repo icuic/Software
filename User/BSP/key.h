@@ -40,5 +40,6 @@ extern uint8_t KeyCode;
 void InitSPIcommon(void);
 void InitKey(void);
 u8 scankey(void) ; //只处理一个键按下情况
+uint8_t key_detect(void);
 
 #endif

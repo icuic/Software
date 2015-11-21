@@ -278,7 +278,7 @@ void rtcInit(void)
   }
 }
 
-bool RTC_Valid(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
+u8 RTC_Valid(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 {
     if(syear<1970||syear>2099)
         return 1;
@@ -310,4 +310,6 @@ bool RTC_Valid(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 
     if (hour > 23 || min > 60 || sec > 60)
         return 1;
+		
+		return 0;
 }

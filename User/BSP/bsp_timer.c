@@ -178,7 +178,7 @@ void bsp_StartTimer(uint8_t _id, uint32_t _period, void(*pf))
     __set_PRIMASK(1);       /* 关中断 */
     g_Tmr[_id].count = _period;
     g_Tmr[_id].flag = 0;
-    g_Tmr[_id].fTimeout = pf;
+    g_Tmr[_id].fTimeout = (pFun)(pf);
     __set_PRIMASK(0);       /* 开中断 */
 }
 

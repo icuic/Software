@@ -5,6 +5,7 @@
 #include "bsp_timer.h"
 #include <stdio.h>
 #include "roomInfoManage.h"
+#include "rtc.h"
 //#include "string.h"
 
 
@@ -451,37 +452,10 @@ static void openBoxInOrder()
 static void scanCard(unsigned char* UID)
 {
     unsigned char Temp[4];
-    u8 i,j;
 
     //scan card
     if(PcdRequest(0x52,Temp)==MI_OK)
     {
-    #if 0
-        if(Temp[0]==0x04&&Temp[1]==0x00) 
-        {
-            //DisplayStr("MFOne-S50",1,0);
-        }
-        else if(Temp[0]==0x02&&Temp[1]==0x00)
-        {
-            DisplayStr("MFOne-S70",1,0);
-        }
-        else if(Temp[0]==0x44&&Temp[1]==0x00)
-        {
-            DisplayStr("MF-UltraLight",1,0);
-        }
-        else if(Temp[0]==0x08&&Temp[1]==0x00)
-        {
-            DisplayStr("MF-Pro",1,0);
-        }
-        else if(Temp[0]==0x44&&Temp[1]==0x03)
-        {
-            DisplayStr("MF Desire",1,0);
-        }
-        else
-        {
-            DisplayStr("Unknown",1,0);
-        }
-    #endif
         if(PcdAnticoll(UID)==MI_OK)
         { 
             //DisplayStr("Card Id is:",2,0);
@@ -607,7 +581,7 @@ static void DisplayDataTime(uint32_t TimeVar)
     {
         t = calendar.sec;
         
-        sprintf(tmp, "%02d:%02d:%02d", calendar.hour, calendar.min, calendar.sec);
+        sprintf((char *)tmp, "%02d:%02d:%02d", calendar.hour, calendar.min, calendar.sec);
         DisplayStr(tmp, 3, 2);
 
         //sprintf(tmp, "%02d-%02d-%02d %02d:%02d:%02d %02d", calendar.w_year, calendar.w_month, calendar.w_date /
@@ -626,8 +600,7 @@ static void enter_welcome(uint8_t key)
     
     
 #if 1
-    uint8_t i = 0;
-    uint8_t tmp[(M_MAX_BOX + 8) / 8 + 1];
+    //char tmp[(M_MAX_BOX + 8) / 8 + 1];
 
     ClearDisplay();
     
@@ -636,7 +609,7 @@ static void enter_welcome(uint8_t key)
 
     if (bitMapFlashDateError != 0)
     {
-        sprintf(tmp, "%x", bitMapFlashDateError);
+        //sprintf(tmp, "%x", bitMapFlashDateError);
 
         //DisplayStr(tmp, 1, 0);
     }
@@ -1983,7 +1956,7 @@ static void enter_set_clock(uint8_t key)
     bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
 
-static bool valid_clock(uint8_t *dateTime, uint8_t len)
+static u8 valid_clock(uint8_t *dateTime, uint8_t len)
 {
     uint16_t year  = 2000;
     uint8_t  month = 0, day = 0, hour = 0, minute = 0, second = 0;

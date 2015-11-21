@@ -17,12 +17,14 @@
 /* 目前是空操作，用户可以定义让CPU进入IDLE状态的函数和喂狗函数 */
 #define CPU_IDLE()
 
+typedef void (*pFun)(void);
+
 /* 定时器结构体，成员变量必须是 volatile, 否则C编译器优化时可能有问题 */
 typedef struct
 {
     volatile uint32_t count;
     volatile uint8_t flag;
-    void (*fTimeout)(void);
+    pFun fTimeout;
 }SOFT_TMR;
 
 #define M_SOFT_TIMER_FOR_MENU   1
