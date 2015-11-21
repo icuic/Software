@@ -10,7 +10,7 @@
 #define M_ROOM_MAX_USER             6
 #define M_CARD_ID_MAX_LENGTH        4
 
-#define M_MAX_BOX                   64
+#define M_MAX_BOX                   48
 
 
 typedef enum

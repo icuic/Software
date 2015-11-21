@@ -18,6 +18,8 @@
 
 #define M_MAX_CLOCK_LEN         12
 
+#define M_MAX_BOX_NUM_USED      4   // 箱门号码最多只能有4位数字
+
 extern void DisplayStr(u8 *str,u8 x,u8 y);
 extern void DisplayKey(u8 keyvalue, u8 x, u8 y);
 
@@ -358,6 +360,7 @@ typedef enum
     E_FOR_AUTH_CARD,        // 绑定卡片
     E_FOR_CLEAR_CARD,       // 解除绑定卡片
     E_FOR_FORCE_OPEN_BOX,   // 强制开箱
+    E_FOR_SET_PW,           // 设置对应箱门的密码
     E_FOR_END
 }eMenuEnterFor;
 
@@ -768,7 +771,7 @@ static void action_room_number(uint8_t key)
         case M_KEY_8:
         case M_KEY_9:
         {
-            if (lenRoomNum < M_ROOM_PASSWORD_MAX_LENGTH)
+            if (lenRoomNum < M_MAX_BOX_NUM_USED)
             {
                 roomNum[lenRoomNum++] = key;
             
@@ -888,7 +891,7 @@ static void action_room_pw(uint8_t key)
             ClearDisplay();
             draw_room_pw();
         }
-            break;
+        break;
 
 
         case M_KEY_0:
@@ -974,6 +977,12 @@ static void enter_room_invalid(uint8_t key)
         case E_FOR_FORCE_OPEN_BOX:
         {
             menuTab[E_UI_ROOM_INVALID].parent = E_UI_BOX_SETTING;
+        }
+        break;
+
+        case E_FOR_SET_PW:
+        {
+            menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
         }
         break;
 
@@ -1423,7 +1432,7 @@ static void action_user_setting_box_pw(uint8_t key)
             else
             {
                 currentMenu = E_UI_ROOM_INVALID;
-
+                roomNumFor = E_FOR_SET_PW;
                 enter_room_invalid(key);
             }
 
@@ -1570,7 +1579,7 @@ static void action_user_setting_card_auth(uint8_t key)
 static void draw_user_setting_box_num(void)
 {
     uint8_t j = 0;
-    uint8_t tmps[3] = {'\0', '\0', '\0'};
+    uint8_t tmps[M_MAX_BOX_NUM_USED] = {'\0', '\0', '\0', '\0'};
 
     DisplayStr("请输入对应房间号", 0, 0);
 
@@ -1589,7 +1598,7 @@ static void draw_user_setting_box_num(void)
     {
         case 0:         /* Display stored room number */
         {
-            for(j = 0; j < 3; j++)
+            for(j = 0; j < M_MAX_BOX_NUM_USED; j++)
             {
                 tmps[0] = *(((uint8_t *)(roomInfo[tmpIndex].number)) + j);
                 if (tmps[0] != 0)
@@ -1607,7 +1616,7 @@ static void draw_user_setting_box_num(void)
 
         case 1:         /* Clear, no break */
         {
-            for(j = 0; j < 3; j++)
+            for(j = 0; j < M_MAX_BOX_NUM_USED; j++)
             {
                 LcdWdata(' ');
             }
@@ -1698,7 +1707,7 @@ static void action_user_setting_box_num(uint8_t key)
         case M_KEY_8:
         case M_KEY_9:
         {
-            if (lenRoomNum < 3)
+            if (lenRoomNum < M_MAX_BOX_NUM_USED) // 最多只能输入4位数字
             {
                 roomNum[lenRoomNum++] = key;
             
@@ -1706,6 +1715,20 @@ static void action_user_setting_box_num(uint8_t key)
             }
         }
             break;
+
+        case M_KEY_ESC:     /* Delete a number */
+        {
+            if (lenRoomNum > 0)
+            {
+                lenRoomNum--;
+                roomNum[lenRoomNum] = 0;
+            }
+
+            ClearDisplay();
+            draw_user_setting_box_num();
+        }
+            break;
+
 
         default:        /* 其它 */
             break;
