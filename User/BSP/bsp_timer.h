@@ -25,6 +25,11 @@ typedef struct
     void (*fTimeout)(void);
 }SOFT_TMR;
 
+#define M_SOFT_TIMER_FOR_MENU   1
+#define M_SOFT_TIMER_FOR_BEEP   2
+#define M_SOFT_TIMER_FOR_OPEN   3   // Open box one by one
+
+
 /* 供外部调用的函数声明 */
 void bsp_InitTimer(void);
 void bsp_DelayMS(uint32_t n);

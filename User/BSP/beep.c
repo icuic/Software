@@ -25,5 +25,5 @@ void Beep(uint8_t ms)
 {
     GPIO_SetBits(GPIOA, GPIO_Pin_0);
 
-    bsp_StartTimer(2, ms, StopBeep);
+    bsp_StartTimer(M_SOFT_TIMER_FOR_BEEP, ms, StopBeep);
 }

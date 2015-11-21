@@ -8,8 +8,7 @@
 //#include "string.h"
 
 
-#define M_SOFT_TIMER_FOR_MENU   1
-#define M_SOFT_TIMER_FOR_BEEP   2
+
 
 #define M_1_SECOND              1000
 #define M_NEVER_GO_BACK         0xFFFF
@@ -122,6 +121,10 @@ static void action_sure_to_auth_card(uint8_t key);
 static void draw_set_clock(void);
 static void enter_set_clock(uint8_t key);
 static void action_set_clock(uint8_t key);
+
+static void draw_open_one_by_one(void);
+static void enter_open_one_by_one(uint8_t key);
+static void action_open_one_by_one(uint8_t key);
 
 
 static UIStruct menuTab[E_UI_MAX] = 
@@ -314,6 +317,15 @@ static UIStruct menuTab[E_UI_MAX] =
     enter_set_clock,
     action_set_clock,
     },
+
+    {
+    E_UI_BOX_SETTING_OPEN_ONE_BY_ONE,
+    E_UI_BOX_SETTING,
+    20 * M_1_SECOND, 
+    draw_open_one_by_one,
+    enter_open_one_by_one,
+    action_open_one_by_one,
+    },
 };
 
 typedef enum
@@ -327,6 +339,7 @@ typedef enum
     E_TIPS_TYPE_CARD_INVALID,               // 无效卡
     E_TIPS_TYPE_CLOCK_SET_SUCCESS,          // 时间设置成功
     E_TIPS_TYPE_CLOCK_INVALID,              // 时间无效
+    E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS,     // 箱门已强制打开
     E_TIPS_TYPE_END
 }eTipsType;
 
@@ -343,6 +356,7 @@ typedef enum
     E_FOR_OPEN_BOX = 0,     // 密码开箱
     E_FOR_AUTH_CARD,        // 绑定卡片
     E_FOR_CLEAR_CARD,       // 解除绑定卡片
+    E_FOR_FORCE_OPEN_BOX,   // 强制开箱
     E_FOR_END
 }eMenuEnterFor;
 
@@ -369,6 +383,7 @@ u8 lockStat = 0;
 //};
 
 static uint8_t timeOutCnt = 0;
+static uint8_t boxIndex = 0;
 
 
 static uint8_t lenRoomNum = 0;                          // length of room number
@@ -394,7 +409,7 @@ static void timeout()
     {
         timeOutCnt++;
         Beep(50);
-        bsp_StartTimer(1, 500, timeout);
+        bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, 500, timeout);
     }
     else
     {
@@ -408,6 +423,28 @@ static void timeout()
         
         /* Init parameters for next menu's display */
         menuTab[currentMenu].menu_enter(M_KEY_NO_KEY);
+    }
+}
+
+static void openBoxInOrder()
+{
+
+    if (boxIndex < 2)
+    {
+        OpenLock(boxIndex, M_MAX_BOX);
+        boxIndex++;
+        
+        lockStat = 1;
+        IS_TIMEOUT_1MS(LockPlus,0);
+
+        bsp_StartTimer(M_SOFT_TIMER_FOR_OPEN, M_1_SECOND, openBoxInOrder);
+    }
+    else
+    {   
+        boxIndex = 0; 
+        
+        currentMenu = E_UI_BOX_SETTING;
+        enter_box_setting(M_KEY_NO_KEY);
     }
 }
 
@@ -803,6 +840,19 @@ static void action_room_number(uint8_t key)
                         currentMenu = E_UI_USER_SETTING_CARD_CLEAR;
                         enter_user_setting_card_clear(key);
                     }
+                    else if (roomNumFor == E_FOR_FORCE_OPEN_BOX)
+                    {
+                        roomNumFor = E_FOR_OPEN_BOX;
+
+                        OpenLock(matchedIndex, M_MAX_BOX);
+                        
+                        lockStat = 1;
+                        IS_TIMEOUT_1MS(LockPlus,0);
+
+                        currentMenu = E_UI_TIPS;
+                        tipsType = E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS;  
+                        enter_tips(M_KEY_NO_KEY);
+                    }
                     
                 }
                 else                                                    /* It's a invalid room number */
@@ -945,6 +995,12 @@ static void enter_room_invalid(uint8_t key)
         case E_FOR_CLEAR_CARD:
         {
             menuTab[E_UI_ROOM_INVALID].parent = E_UI_USER_SETTING;
+        }
+        break;
+
+        case E_FOR_FORCE_OPEN_BOX:
+        {
+            menuTab[E_UI_ROOM_INVALID].parent = E_UI_BOX_SETTING;
         }
         break;
 
@@ -1257,10 +1313,7 @@ static void enter_box_setting(uint8_t key)
     DisplayStr("开箱设置", 0, 2);
     DisplayStr("1.单开", 1, 0);
     DisplayStr("2.全开", 1, 5);
-    DisplayStr("3.单清", 2, 0);
-    DisplayStr("4.全清", 2, 5);    
-    DisplayStr("5.语音", 3, 0);
-    DisplayStr("0.退出", 3, 5);
+    DisplayStr("0.退出", 2, 0);
 
     bsp_StartTimer(1, 10000, timeout);
 
@@ -1274,18 +1327,14 @@ static void action_box_setting(uint8_t key)
     switch(key)
     {
         case M_KEY_1:
+            roomNumFor = E_FOR_FORCE_OPEN_BOX;
+            currentMenu = E_UI_USER_ROOM_NUM;
+            enter_room_number(key);            
             break;
 
-        case M_KEY_2:
-            break;
-
-        case M_KEY_3:
-            break;
-
-        case M_KEY_4:
-            break;
-
-        case M_KEY_5:
+        case M_KEY_2:           
+            currentMenu = E_UI_BOX_SETTING_OPEN_ONE_BY_ONE;
+            enter_open_one_by_one(key);
             break;
 
         case M_KEY_0:
@@ -1762,16 +1811,14 @@ static void draw_tips(void)
     switch(tipsType)
     {
         case E_TIPS_TYPE_BOX_OPEN_SUCCESS:
+        case E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS:
         {
                uint8_t tmp[M_ROOM_NUM_MAX_LENGTH] = 0;               
                sprintf(tmp,"%s",roomInfo[matchedIndex].number);
                DisplayStr(tmp,0,3);
    
                DisplayStr("箱门已开", 1, 2);
-               DisplayStr("请随手关箱门", 2, 1);
-
-            
-               //DisplayCustomStr(E_CUSTOM_STR_ROOM_HAS_OPEN);
+               DisplayStr("请随手关箱门", 2, 1);            
         }
         break;
 
@@ -1848,6 +1895,10 @@ static void enter_tips(uint8_t key)
 
         case E_TIPS_TYPE_CLOCK_INVALID:
             menuTab[currentMenu].parent = E_UI_ADMIN_SETTING_CLOCK;
+        break;
+
+        case E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS:
+            menuTab[currentMenu].parent = E_UI_BOX_SETTING;
         break;
 
         default:
@@ -2026,6 +2077,30 @@ static void action_set_clock(uint8_t key)
         default:
             break;   
     }
+}
+
+static void draw_open_one_by_one(void)
+{
+
+}
+
+static void enter_open_one_by_one(uint8_t key)
+{ 
+    ClearDisplay();
+
+    DisplayStr("正在", 0, 3);
+    DisplayStr("依次打开", 1, 2);
+    DisplayStr("所有箱门", 2, 2);
+
+    bsp_StartTimer(M_SOFT_TIMER_FOR_OPEN, M_1_SECOND, openBoxInOrder);
+    
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
+}
+
+static void action_open_one_by_one(uint8_t key)
+{
+    /* Soft timer 3 used for open box in order only */
+    bsp_CheckTimer(M_SOFT_TIMER_FOR_OPEN);
 }
 
 
