@@ -1061,9 +1061,9 @@ static void enter_admin(uint8_t key)
     DisplayStr("设置", 0, 3);
     DisplayStr("1.用户", 1, 0);
     DisplayStr("2.管理", 1, 5);
-    DisplayStr("3.系统", 2, 0);
-    DisplayStr("4.箱门", 2, 5);    
-    DisplayStr("0.退出", 3, 0);
+    //DisplayStr("3.系统", 2, 0);
+    DisplayStr("3.箱门", 2, 0);    
+    DisplayStr("0.退出", 2, 5);
 
     bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
 }
@@ -1085,13 +1085,13 @@ static void action_admin(uint8_t key)
             break;
 
         case M_KEY_3:
-            currentMenu = E_UI_SYSTEM_SETTING;
-            enter_system_setting(key);
+            currentMenu = E_UI_BOX_SETTING;
+            enter_box_setting(key);
             break;
 
         case M_KEY_4:
-            currentMenu = E_UI_BOX_SETTING;
-            enter_box_setting(key);
+            //currentMenu = E_UI_SYSTEM_SETTING;
+            //enter_system_setting(key);
             break;
 
         case M_KEY_0:
@@ -1178,12 +1178,12 @@ static void enter_admin_setting(uint8_t key)
     ClearDisplay();
 
     DisplayStr("管理设置", 0, 2);
-    DisplayStr("1.密码", 1, 0);
-    DisplayStr("2.时钟", 1, 5);
-    DisplayStr("3.锁定", 2, 0);
-    DisplayStr("4.查询", 2, 5);    
-    DisplayStr("5.字母", 3, 0);
-    DisplayStr("0.退出", 3, 5);
+    DisplayStr("1.时钟", 1, 0);
+    //DisplayStr("2.密码", 1, 5);
+    //DisplayStr("3.锁定", 2, 0);
+    //DisplayStr("4.查询", 2, 5);    
+    //DisplayStr("5.字母", 3, 0);
+    DisplayStr("0.退出", 1, 5);
 
     bsp_StartTimer(1, 10000, timeout);
 }
@@ -1195,11 +1195,11 @@ static void action_admin_setting(uint8_t key)
     switch(key)
     {
         case M_KEY_1:
+            currentMenu = E_UI_ADMIN_SETTING_CLOCK;
+            enter_set_clock(key);
             break;
 
         case M_KEY_2:
-            currentMenu = E_UI_ADMIN_SETTING_CLOCK;
-            enter_set_clock(key);
             break;
 
         case M_KEY_3:
