@@ -1748,7 +1748,10 @@ static void action_user_setting_box_num(uint8_t key)
 
             SetRoomNum(tmpIndex, roomNum);
             
-            tmpIndex++;
+            if (tmpIndex == M_MAX_BOX - 1)
+                tmpIndex = 0;
+            else
+                tmpIndex++;
 
             enter_user_setting_box_num(key);
 
