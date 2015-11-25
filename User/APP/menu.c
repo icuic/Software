@@ -324,7 +324,7 @@ static UIStruct menuTab[E_UI_MAX] =
     {
     E_UI_BOX_SETTING_OPEN_ONE_BY_ONE,
     E_UI_BOX_SETTING,
-    20 * M_1_SECOND, 
+    M_MAX_BOX * M_1_SECOND, 
     draw_open_one_by_one,
     enter_open_one_by_one,
     action_open_one_by_one,
@@ -447,9 +447,14 @@ static void exitByESC(void)
 
 static void openBoxInOrder()
 {
+    uint8_t u08timeout[3] = {0, 0, 0};   
 
-    if (boxIndex < 2)
+    if (boxIndex < M_MAX_BOX)
     {
+        u08timeout[0] = '0' + boxIndex / 10;
+        u08timeout[1] = '0' + boxIndex % 10;
+        DisplayStr(u08timeout, 0, 7);
+        
         OpenLock(boxIndex, M_MAX_BOX);
         boxIndex++;
         
@@ -710,7 +715,7 @@ static void draw_room_number(void)
 {
     uint8_t j = 0;
 
-    DisplayStr("请输入房间号", 0, 1);
+    DisplayStr("请输入箱号", 0, 1);
 
     SetCursor(2,3);
     for(j = 0; j < lenRoomNum; j++)
@@ -982,7 +987,7 @@ static void enter_room_invalid(uint8_t key)
 {
     ClearDisplay();
 
-    DisplayStr("无效房间号", 1, 1);
+    DisplayStr("无效箱号", 1, 2);
 
     switch(roomNumFor)
     {
@@ -1155,7 +1160,7 @@ static void enter_user_setting(uint8_t key)
 
     DisplayStr("用户设置", 0, 2);
     DisplayStr("1.箱密", 1, 0);
-    DisplayStr("2.房号", 1, 5);
+    DisplayStr("2.箱号", 1, 5);
     DisplayStr("3.授卡", 2, 0);
     DisplayStr("4.退卡", 2, 5);    
     DisplayStr("0.退出", 3, 0);
@@ -1369,7 +1374,7 @@ static void draw_user_setting_box_pw(void)
         if ((subflag & 0x01) == 0)
         {
             subflag |= 0x01;
-            DisplayStr("请输入房间号", 0, 1);
+            DisplayStr("请输入箱号", 0, 1);
         }
 
         SetCursor(1,3);
@@ -1635,7 +1640,7 @@ static void draw_user_setting_box_num(void)
     uint8_t j = 0;
     uint8_t tmps[M_MAX_BOX_NUM_USED] = {'\0', '\0', '\0', '\0'};
 
-    DisplayStr("请输入对应房间号", 0, 0);
+    DisplayStr("请输入对应箱号", 0, 0);
 
     /* Control line */
     if (tmpIndex < M_MAX_BOX)
