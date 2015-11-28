@@ -198,6 +198,19 @@ void Flash_EraseBlock(u32 BlockAddress)
 
     Flash_WaitWriteEnd();
 }
+
+void Flash_EraseChip(void)
+{
+    Flash_Write_Enable();
+    
+    Flash_CS_Low;
+
+    Flash_SendByte(0x60);
+     
+    Flash_CS_High;
+
+    Flash_WaitWriteEnd();
+}
  
 /*---------------------------------------------------------------------------------
 * Function Name  : Flash_ReadBuffer

@@ -18,6 +18,7 @@ void Flash_Read(u8 *pBuffer,u32 ReadAddress,u16 ReadByteNum);
 void Flash_PowerDown(void);
 void Flash_WakeUp(void);
 u32  Flash_ReadID(void);
+void Flash_EraseChip(void);
 
 
 

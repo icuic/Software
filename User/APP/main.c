@@ -84,20 +84,11 @@ int main(void)
 
     recoverRoomInfoFromFlash();
     recoverAdminCardIDFromFlash();
-
+    GetAdminPWFromFlash();
+    
     while (1)
     {
         // scan key
-        #if 0
-        if(IS_TIMEOUT_1MS(Keyscan,100))
-        {
-            KeyCode = scankey();
-            //DisplayKey(bbb);
-            
-            IS_TIMEOUT_1MS(Keyscan,0);
-        }
-        #endif
-
         key_detect();
 
         // menu display

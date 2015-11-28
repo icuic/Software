@@ -7,11 +7,12 @@
 #include "stm32f10x.h"
 #include "string.h"
 
-
+#define M_FLASH_ADDRESS_ADMIN_CARD_ID                (2 * M_MAX_BOX * FLASH_SECTOR_SIZE) // 紧接在箱门信息之后
 
 stRoomInfo roomInfo[M_MAX_BOX];
 uint8_t adminCardID[M_CARD_ID_MAX_LENGTH];
 
+uint8_t adminPassword[M_ADMIN_PASSWORD_LENGTH];         // 管理员密码
 
 long long bitMapFlashDateError;
 
@@ -94,7 +95,7 @@ uint8_t SetRoomCardID(uint8_t index, uint8_t* data)
         }
 
         // update RAM
-        memcpy(roomInfo[index].cardID[M_ROOM_MAX_USER], data, M_CARD_ID_MAX_LENGTH);
+        memcpy(roomInfo[index].cardID[M_ROOM_MAX_USER - 1], data, M_CARD_ID_MAX_LENGTH);
 
         // update Flash
         saveRoomInfo(index);
@@ -107,17 +108,40 @@ uint8_t SetRoomCardID(uint8_t index, uint8_t* data)
 
 void writeAdminCardIDToFlash(uint8_t* cardID)
 {
-    Flash_EraseSector(0x3F0000);
+    Flash_EraseSector(M_FLASH_ADDRESS_ADMIN_CARD_ID);
 
-    Flash_PageWrite(adminCardID, 0x3F0000, sizeof(adminCardID));
+    Flash_PageWrite(adminCardID, M_FLASH_ADDRESS_ADMIN_CARD_ID, sizeof(adminCardID));
 }
 
 
 void recoverAdminCardIDFromFlash(void)
 {
-    Flash_Read(adminCardID, 0x3F0000, sizeof(adminCardID));
+    Flash_Read(adminCardID, M_FLASH_ADDRESS_ADMIN_CARD_ID, sizeof(adminCardID));
 }
 
+void writeAdminPWToFlash(uint8_t* pw)
+{
+    memcpy(adminPassword, pw, M_ADMIN_PASSWORD_LENGTH);
+    
+    Flash_EraseSector(M_FLASH_ADDRESS_ADMIN_CARD_ID + FLASH_SECTOR_SIZE);
+
+    Flash_PageWrite(pw, M_FLASH_ADDRESS_ADMIN_CARD_ID + FLASH_SECTOR_SIZE, M_ADMIN_PASSWORD_LENGTH);
+}
+
+void GetAdminPWFromFlash(void)
+{
+    uint8_t tmp[M_ADMIN_PASSWORD_LENGTH] ="7091";
+    
+    Flash_Read(adminPassword, M_FLASH_ADDRESS_ADMIN_CARD_ID + FLASH_SECTOR_SIZE, sizeof(adminPassword));
+
+    if (adminPassword[0] == 0xFF &&
+        adminPassword[1] == 0xFF &&
+        adminPassword[2] == 0xFF &&
+        adminPassword[3] == 0xFF)
+    {
+        memcpy(adminPassword, tmp, M_ADMIN_PASSWORD_LENGTH);
+    }
+}
 
 uint8_t matchRoomNum(uint8_t *num, uint8_t len)
 {
@@ -210,7 +234,12 @@ sector 5 -- roomInfo[2] backup
 
 ...
 
-0x3F0000 -- adminCardID
+sector (2 * (M_MAX_BOX - 1)) -- roomInfo[M_MAX_BOX - 1]
+sector (2 * (M_MAX_BOX - 1) + 1) -- roomInfo[M_MAX_BOX - 1] backup
+
+sector (2 * M_MAX_BOX) -- adminCardID
+sector (2 * M_MAX_BOX + 1) -- adminCardID
+
 */
 
 // Cyclical Redundancy Check code high byte
@@ -315,6 +344,9 @@ uint16_t CRC16(uint8_t *px, uint8_t ucLen)
 
 static uint32_t getFlashAddress(uint8_t index)
 {
+    if (index > M_MAX_BOX)
+        return;
+    
     return (2 * index * FLASH_SECTOR_SIZE);
 }
 

@@ -39,6 +39,8 @@ typedef enum
 
     E_UI_ADMIN_SETTING_CLOCK,       // 设置时钟
 
+    E_UI_ADMIN_SEETING_PW,          // 设置管理员密码
+
     E_UI_BOX_SETTING_OPEN_ONE_BY_ONE,      // 单独开某一箱门，输入箱号
 
     E_UI_MAX

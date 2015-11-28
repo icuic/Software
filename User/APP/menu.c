@@ -125,6 +125,11 @@ static void draw_set_clock(void);
 static void enter_set_clock(uint8_t key);
 static void action_set_clock(uint8_t key);
 
+static void draw_set_admin_pw(void);
+static void enter_set_admin_pw(uint8_t key);
+static void action_set_admin_pw(uint8_t key);
+
+
 static void draw_open_one_by_one(void);
 static void enter_open_one_by_one(uint8_t key);
 static void action_open_one_by_one(uint8_t key);
@@ -321,6 +326,16 @@ static UIStruct menuTab[E_UI_MAX] =
     action_set_clock,
     },
 
+    
+    {
+    E_UI_ADMIN_SEETING_PW,
+    E_UI_ADMIN_SETTING,
+    20 * M_1_SECOND, 
+    draw_set_admin_pw,
+    enter_set_admin_pw,
+    action_set_admin_pw,
+    },
+
     {
     E_UI_BOX_SETTING_OPEN_ONE_BY_ONE,
     E_UI_BOX_SETTING,
@@ -343,6 +358,8 @@ typedef enum
     E_TIPS_TYPE_CLOCK_SET_SUCCESS,          // 时间设置成功
     E_TIPS_TYPE_CLOCK_INVALID,              // 时间无效
     E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS,     // 箱门已强制打开
+    E_TIPS_TYPE_ADMIN_PW_SETTING_SECCESS,   // 管理员密码设置成功
+    E_TIPS_TYPE_ADMIN_PW_SETTING_FAILED,     // 管理员密码设置失败
     E_TIPS_TYPE_END
 }eTipsType;
 
@@ -405,6 +422,14 @@ static uint8_t matchedIndex = 0xFF;                     //
 
 static uint8_t lenClock = 0;
 static uint8_t newClock[M_MAX_CLOCK_LEN];
+
+
+static uint8_t lenAdminPW = 0;                          // length of admin password
+static uint8_t adminPW[M_ADMIN_PASSWORD_LENGTH];        // admin password
+
+static uint8_t lenAdminPWAgain = 0;                     // length of admin password
+static uint8_t adminPWAgain[M_ADMIN_PASSWORD_LENGTH];   // admin password
+
 
 static void timeout()
 {
@@ -645,6 +670,9 @@ static void action_welcome(uint8_t key)
 {
     static bool bPowerOn = TRUE;
 
+    static uint8_t emergencyCode[6] = {0,0,0,0,0,0};
+    static uint8_t length = 0;
+
     uint8_t UID[M_CARD_ID_MAX_LENGTH];
     memset(UID, M_DEFAULT_VALUE, M_CARD_ID_MAX_LENGTH);
 
@@ -681,6 +709,36 @@ static void action_welcome(uint8_t key)
         roomNumFor = E_FOR_OPEN_BOX;
         enter_room_number(key);
     }
+    else
+    {
+        switch(key)
+        {
+            case M_KEY_OK:
+            {
+                if (emergencyCode[0] == M_KEY_PRE &&
+                    emergencyCode[1] == M_KEY_NEXT &&
+                    emergencyCode[2] == M_KEY_ESC &&
+                    emergencyCode[3] == M_KEY_NEXT &&
+                    emergencyCode[4] == M_KEY_ESC &&
+                    emergencyCode[5] == M_KEY_PRE)
+                {
+                    currentMenu = E_UI_SET_ADMIN_CARD;
+            
+                    ClearDisplay();
+                    enter_set_admin_card(key);
+                }
+            }
+            
+
+            case M_KEY_PRE:
+            case M_KEY_NEXT:
+            case M_KEY_ESC:
+                emergencyCode[length++] = key;
+                break;
+        }
+    }
+
+    
 }
 
 
@@ -809,13 +867,17 @@ static void action_room_number(uint8_t key)
         {
             translateKey(roomNum, lenRoomNum);
 
-            if (strcmp(roomNum, "888", lenRoomNum) == 0)            /* Enter administer card setting menu */
+            if (memcmp(roomNum, adminPassword, M_ADMIN_PASSWORD_LENGTH) == 0)            /* Enter administer card setting menu */
             {
                 currentMenu = E_UI_SET_ADMIN_CARD;
             
                 ClearDisplay();
                 enter_set_admin_card(key);
             }
+            else if (strcmp(roomNum, "555", lenRoomNum) == 0)            /* Enter administer card setting menu */
+            {
+                Flash_EraseChip();
+            }            
             else                                                    /* It's a valid room number */
             {
                 matchedIndex = matchRoomNum(roomNum, lenRoomNum);
@@ -951,7 +1013,6 @@ static void action_room_pw(uint8_t key)
         
             if (matchRoomPassword(matchedIndex, roomPW, lenRoomPW))
             {
-                //OpenLock(0X0002);
                 OpenLock(matchedIndex, M_MAX_BOX);
 
                 lockStat = 1;
@@ -1159,8 +1220,8 @@ static void enter_user_setting(uint8_t key)
     ClearDisplay();
 
     DisplayStr("用户设置", 0, 2);
-    DisplayStr("1.箱密", 1, 0);
-    DisplayStr("2.箱号", 1, 5);
+    DisplayStr("1.箱号", 1, 0);
+    DisplayStr("2.箱密", 1, 5);
     DisplayStr("3.授卡", 2, 0);
     DisplayStr("4.退卡", 2, 5);    
     DisplayStr("0.退出", 3, 0);
@@ -1176,13 +1237,13 @@ static void action_user_setting(uint8_t key)
     switch(key)
     {
         case M_KEY_1:
-            currentMenu = E_UI_USER_SETTING_BOX_PW;
-            enter_user_setting_box_pw(key);
-            break;
-
-        case M_KEY_2:
             currentMenu = E_UI_USER_SETTING_BOX_NUM;
             enter_user_setting_box_num(key);
+            break;
+        
+        case M_KEY_2:
+            currentMenu = E_UI_USER_SETTING_BOX_PW;
+            enter_user_setting_box_pw(key);
             break;
 
         case M_KEY_3:
@@ -1220,11 +1281,11 @@ static void enter_admin_setting(uint8_t key)
 
     DisplayStr("管理设置", 0, 2);
     DisplayStr("1.时钟", 1, 0);
-    //DisplayStr("2.密码", 1, 5);
+    DisplayStr("2.密码", 1, 5);
     //DisplayStr("3.锁定", 2, 0);
     //DisplayStr("4.查询", 2, 5);    
     //DisplayStr("5.字母", 3, 0);
-    DisplayStr("0.退出", 1, 5);
+    DisplayStr("0.退出", 2, 0);
 
     bsp_StartTimer(1, 10000, timeout);
 }
@@ -1241,6 +1302,8 @@ static void action_admin_setting(uint8_t key)
             break;
 
         case M_KEY_2:
+            currentMenu = E_UI_ADMIN_SEETING_PW;
+            enter_set_admin_pw(key);
             break;
 
         case M_KEY_3:
@@ -1417,7 +1480,7 @@ static void draw_user_setting_box_pw(void)
 
 static void enter_user_setting_box_pw(uint8_t key)
 {
-    if (key != M_KEY_1)
+    if (key != M_KEY_2)
         return;
 
     subflag = 0;
@@ -1700,7 +1763,7 @@ static void draw_user_setting_box_num(void)
 
 static void enter_user_setting_box_num(uint8_t key)
 {   
-    if (key == M_KEY_2) /* Enter this menu form the upper */
+    if (key == M_KEY_1) /* Enter this menu form the upper */
         tmpIndex = 0;
 
     lenRoomNum = 0;
@@ -1912,6 +1975,15 @@ static void draw_tips(void)
             DisplayStr("无效时间", 1, 2);
         break;
 
+        case E_TIPS_TYPE_ADMIN_PW_SETTING_SECCESS:
+            DisplayStr("密码设置成功", 1, 1);
+        break;
+
+        case E_TIPS_TYPE_ADMIN_PW_SETTING_FAILED:
+            DisplayStr("两次密码不一致", 1, 1);
+            DisplayStr("设置失败", 2, 2);
+        break;
+
         default:
         break;        
     }
@@ -1961,6 +2033,14 @@ static void enter_tips(uint8_t key)
 
         case E_TIPS_TYPE_FORCE_BOX_OPEN_SUCCESS:
             menuTab[currentMenu].parent = E_UI_BOX_SETTING;
+        break;
+
+        case E_TIPS_TYPE_ADMIN_PW_SETTING_SECCESS:
+            menuTab[currentMenu].parent = E_UI_ADMIN_SETTING;
+        break;
+
+        case E_TIPS_TYPE_ADMIN_PW_SETTING_FAILED:
+            menuTab[currentMenu].parent = E_UI_ADMIN_SEETING_PW;
         break;
 
         default:
@@ -2145,6 +2225,125 @@ static void action_set_clock(uint8_t key)
             break;   
     }
 }
+
+static void draw_set_admin_pw(void)
+{
+    uint8_t j = 0;
+
+    DisplayStr("设置管理密码", 0, 1);
+
+    if (subState == E_BOX_PW_SUB_PW)
+    {  
+        if ((subflag & 0x02) == 0)
+        {
+            subflag |= 0x02;
+            DisplayStr("请输入密码", 2, 1);
+        }    
+        
+        SetCursor(3,3);
+        for(j = 0; j < lenAdminPW; j++)
+            LcdWdata('*');
+    }
+    else if (subState == E_BOX_PW_SUB_PW_AGAIN)
+    {    
+        if ((subflag & 0x04) == 0)
+        {
+            subflag |= 0x04;
+            DisplayStr("请再次输入密码", 2, 1);
+        }  
+        
+        SetCursor(3,3);
+        if (lenAdminPWAgain == 0)
+        {
+            for(j = 0; j < lenAdminPW; j++)
+                LcdWdata(' ');
+        }
+
+        for(j = 0; j < lenAdminPWAgain; j++)
+            LcdWdata('*');
+
+    }
+}
+
+static void enter_set_admin_pw(uint8_t key)
+{
+    //if (key != M_KEY_2)
+    //    return;
+
+    subflag = 0;
+
+    subState = E_BOX_PW_SUB_PW; 
+
+
+    lenAdminPW= 0;
+    memset(adminPW, 0, sizeof(adminPW));
+
+
+    lenAdminPWAgain= 0;
+    memset(adminPWAgain, 0, sizeof(adminPWAgain));
+
+    
+    ClearDisplay();    
+    draw_set_admin_pw();
+
+    bsp_StartTimer(M_SOFT_TIMER_FOR_MENU, menuTab[currentMenu].timeout, timeout);
+}
+
+static void action_set_admin_pw(uint8_t key)
+{
+    if (key == M_KEY_NO_KEY)
+        return;
+
+    if (subState == E_BOX_PW_SUB_PW)
+    {
+        
+        if (key == M_KEY_OK)
+        {
+            translateKey(adminPW, lenAdminPW);
+        
+            subState = E_BOX_PW_SUB_PW_AGAIN;
+        }
+        else
+        {
+            if (lenAdminPW < M_ADMIN_PASSWORD_LENGTH)
+                adminPW[lenAdminPW++] = key;
+        }
+    }
+    else if (subState == E_BOX_PW_SUB_PW_AGAIN)
+    {
+        if (key == M_KEY_OK)
+        {
+            translateKey(adminPWAgain, lenAdminPWAgain);
+        
+            if (lenAdminPW == lenAdminPWAgain && !memcmp(adminPW, adminPWAgain, lenAdminPW))
+            {
+                writeAdminPWToFlash(adminPW);
+
+                tipsType = E_TIPS_TYPE_ADMIN_PW_SETTING_SECCESS;
+                currentMenu = E_UI_TIPS;
+                enter_tips(key);
+
+                return;
+            }
+            else
+            {
+                // 两次密码输入不一致，设置失败
+                tipsType = E_TIPS_TYPE_ADMIN_PW_SETTING_FAILED;
+                currentMenu = E_UI_TIPS;
+                enter_tips(key);
+            }
+        }
+        else
+        {
+            if (lenAdminPWAgain< M_ADMIN_PASSWORD_LENGTH)
+                adminPWAgain[lenAdminPWAgain++] = key;
+        }
+    }
+    
+    draw_set_admin_pw();
+}
+
+
 
 static void draw_open_one_by_one(void)
 {

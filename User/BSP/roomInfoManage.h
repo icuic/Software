@@ -12,6 +12,7 @@
 
 #define M_MAX_BOX                   48
 
+#define M_ADMIN_PASSWORD_LENGTH     4
 
 typedef enum
 {
@@ -35,6 +36,7 @@ typedef struct
 extern uint8_t adminCardID[M_CARD_ID_MAX_LENGTH];
 extern stRoomInfo roomInfo[M_MAX_BOX];
 extern long long bitMapFlashDateError;
+extern uint8_t adminPassword[M_ADMIN_PASSWORD_LENGTH];
 
 uint8_t SetRoomNum(uint8_t index, uint8_t* number);
 uint8_t SetRoomPassword(uint8_t index, uint8_t* data);
@@ -53,5 +55,7 @@ void recoverAdminCardIDFromFlash(void);
 uint8_t matchCardID(uint8_t* uid);
 void writeAdminCardIDToFlash(uint8_t* cardID);
 
+void writeAdminPWToFlash(uint8_t* pw);
+void GetAdminPWFromFlash(void);
 
 #endif
