@@ -896,6 +896,9 @@ static void action_room_number(uint8_t key)
                 if (strcmp(roomNum, "7752", lenRoomNum) == 0)            /* Erase entire chip */
                 {
                     Flash_EraseChip();
+
+                    __set_FAULTMASK(1);         // Disable all interrupt
+                     NVIC_SystemReset();        // Reset stm32 MCU
                 } 
             }
             else                                                    /* It's a valid room number */
