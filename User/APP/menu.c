@@ -406,6 +406,8 @@ u8 lockStat = 0;
 static uint8_t timeOutCnt = 0;
 static uint8_t boxIndex = 0;
 
+static bool bCommand2SetAdminCard = FALSE;              // 用来输入命令
+static bool bCommand2EraseEntireFlash = FALSE;          // 用来擦除整片FLASH
 
 static uint8_t lenRoomNum = 0;                          // length of room number
 static uint8_t roomNum[M_ROOM_NUM_MAX_LENGTH];          // Room number
@@ -783,6 +785,9 @@ static void draw_room_number(void)
 
 static void enter_room_number(uint8_t key)
 {
+    bCommand2SetAdminCard = FALSE;
+    bCommand2EraseEntireFlash = FALSE;
+    
     lenRoomNum = 0;
     memset(roomNum, 0, sizeof(roomNum));
     matchedIndex = 0xFF;
@@ -819,9 +824,18 @@ static void translateKey(uint8_t *key, uint8_t len)
 
 
 static void action_room_number(uint8_t key)
-{
+{    
     if (key == M_KEY_NO_KEY)
         return;
+
+    if (key == M_KEY_PRE && lenRoomNum == 0)
+    {
+        bCommand2SetAdminCard = TRUE;
+    }
+    else if (key == M_KEY_NEXT && lenRoomNum == 0)
+    {
+        bCommand2EraseEntireFlash = TRUE;
+    }
 
     switch(key)
     {
@@ -867,17 +881,23 @@ static void action_room_number(uint8_t key)
         {
             translateKey(roomNum, lenRoomNum);
 
-            if (memcmp(roomNum, adminPassword, M_ADMIN_PASSWORD_LENGTH) == 0)            /* Enter administer card setting menu */
+            if (bCommand2SetAdminCard)
             {
-                currentMenu = E_UI_SET_ADMIN_CARD;
-            
-                ClearDisplay();
-                enter_set_admin_card(key);
+                if (memcmp(roomNum, adminPassword, M_ADMIN_PASSWORD_LENGTH) == 0)            /* Enter administer card setting menu */
+                {
+                    currentMenu = E_UI_SET_ADMIN_CARD;
+                
+                    ClearDisplay();
+                    enter_set_admin_card(key);
+                }
             }
-            else if (strcmp(roomNum, "555", lenRoomNum) == 0)            /* Enter administer card setting menu */
+            else if (bCommand2EraseEntireFlash)
             {
-                Flash_EraseChip();
-            }            
+                if (strcmp(roomNum, "7752", lenRoomNum) == 0)            /* Erase entire chip */
+                {
+                    Flash_EraseChip();
+                } 
+            }
             else                                                    /* It's a valid room number */
             {
                 matchedIndex = matchRoomNum(roomNum, lenRoomNum);
